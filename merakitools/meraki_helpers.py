@@ -30,7 +30,7 @@ def find_org_by_name(org_name: str):
   if len(orgs) > 1:
     console.print(f"Found {len(orgs)} orgs matching [bold]{org_name}[/bold]...")
     for org in orgs:
-      found = Confirm.ask(f" Did you mean [bold]{org['name']}[/bold], with ID {org['id']}?")
+      found = Confirm.ask(f" Did you mean [bold]{org['name']}[/bold], with ID {org['id']}?", console=console)
       if found:
         return org
 

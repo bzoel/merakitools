@@ -51,3 +51,69 @@ def list(
       device["firmware"]
     )
   console.print(table)
+
+@app.command()
+def show_lldp(
+  serial: Optional[List[str]] = None,
+  organization_name: Optional[str] = None,
+  network_name: Optional[str] = None
+):
+  """
+  Show CDP/LLDP information for Meraki device(s)
+  """
+  # Create a list of devices from the specified serial(s)
+  devices = []
+  for ser in serial:
+    device = dashboard.devices.getDevice(serial=ser)
+    devices.append(device)
+
+  # If organization name and/or network name are specified, add devices from that scope
+  if organization_name:
+    if network_name:
+      net = find_network_by_name(organization_name, network_name)
+      add_devices = dashboard.networks.getNetworkDevices(net["id"])
+    else:
+      org = find_org_by_name(organization_name)
+      add_devices = dashboard.organizations.getOrganizationDevices(org["id"])
+
+    devices += add_devices
+
+  elif network_name:
+    console.print("You cannot specify a network name without an organization name.")
+    raise typer.Abort()
+
+  if not devices:
+    console.print("No devices found.")
+    raise typer.Abort()
+
+  console.print(f"Getting CDP/LLDP data for {len(devices)} devices")
+  for dev in devices:
+    device_lldp = dashboard.devices.getDeviceLldpCdp(dev["serial"])
+    if not device_lldp:
+      console.print(f"No CDP/LLDP data found for {dev.get('name', dev['serial'])}")
+      continue
+
+    table = table_with_columns(
+      ["Type", "System Name", "Remote Port", "Mgmt Address"],
+      title=f"{dev['name']} ({dev['serial']})",
+      first_column_name="Port"
+    )
+
+    for port, data in device_lldp["ports"].items():
+      if port:
+        table.add_row(port)
+      if 'cdp' in data.keys():
+        table.add_row(
+          '', 'CDP',
+          data['cdp'].get('deviceId'),
+          data['cdp'].get('portId'),
+          data['cdp'].get('address')
+        )
+      if 'lldp' in data.keys():
+        table.add_row(
+          '', 'LLDP',
+          data['lldp'].get('systemName'),
+          data['lldp'].get('portId'),
+          data['lldp'].get('managementAddress')
+        )
+    console.print(table)

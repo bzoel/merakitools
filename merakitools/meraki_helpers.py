@@ -44,4 +44,8 @@ def find_network_by_name(org_name: str, net_name: str):
   org = find_org_by_name(org_name)
   nets = dashboard.organizations.getOrganizationNetworks(org["id"])
 
-  return next(net for net in nets if net["name"] == net_name)
+  try:
+    return next(net for net in nets if net["name"] == net_name)
+  except StopIteration:
+    print("Network not found.")
+    raise Abort() 

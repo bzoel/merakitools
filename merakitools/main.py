@@ -13,7 +13,9 @@ if sys.version_info < MIN_PYTHON:
 
 import typer
 
-import merakitools.orgs as orgs
+from merakitools import orgs, networks, devices
 
 app = typer.Typer()
 app.add_typer(orgs.app, name="orgs", help="Meraki organizations")
+app.add_typer(networks.app, name="networks", help="Meraki networks")
+app.add_typer(devices.app, name="devices", help="Meraki devices")

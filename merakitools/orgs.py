@@ -6,40 +6,30 @@ CLI tools for managing Meraki networks based on Typer
 """
 from typing import List, Optional
 import typer
-import meraki
-from meraki.exceptions import APIError
-from rich.console import Console
-from rich.table import Table
-from rich import inspect
+from merakitools.console import console
+from merakitools.dashboardapi import dashboard, APIError
 from merakitools.meraki_helpers import find_orgs_by_name
+from merakitools.formatting_helpers import table_with_columns
+from rich import inspect
 
 app = typer.Typer()
-console = Console()
-
-# Create a Meraki dashboard connection
-try:
-  dashboard = meraki.DashboardAPI(
-    output_log=False, print_console=False, suppress_logging=True
-  )
-except APIError:
-  console.print("[bold red]Unable to connect to the Meraki Dashboard.")
-  console.print_exception()
 
 @app.command()
 def list(name: Optional[str] = None):
   """
   List Meraki organizations
   """
-  orgs = find_orgs_by_name(dashboard, name)
+  with console.status("Accessing API..."):
+    orgs = find_orgs_by_name(name)
   console.print(f"[bold]Found {len(orgs)} organizations")
 
   if not orgs:
     raise typer.Abort()
 
-  table = Table(title="Organizations")
-  columns = ['Name', 'ID', 'API', 'Networks', 'Devices']
-  for c in columns:
-    table.add_column(c)
+  table = table_with_columns(
+    ['Name', 'ID', 'API', 'Networks', 'Devices'],
+    title="Organizations"
+  )
 
   with console.status("Accessing API..."):
     for org in orgs:

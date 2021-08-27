@@ -15,7 +15,7 @@ from rich import inspect
 app = typer.Typer()
 
 @app.command()
-def list(name: Optional[str] = None):
+def list(name: Optional[str] = None, include_counts: bool = False):
   """
   List Meraki organizations
   """
@@ -33,7 +33,8 @@ def list(name: Optional[str] = None):
 
   with console.status("Accessing API..."):
     for org in orgs:
-      if org['api']['enabled']:
+      networks = devices = None
+      if include_counts and org['api']['enabled']:
         try:
           networks = dashboard.organizations.getOrganizationNetworks(org['id'])
           devices = dashboard.organizations.getOrganizationDevices(org['id'])
@@ -43,8 +44,8 @@ def list(name: Optional[str] = None):
         org['name'],
         org['id'],
         "[green]Enabled" if org['api']['enabled'] else "[red]Disabled",
-        str(len(networks)) if networks else "n/a",
-        str(len(devices)) if devices else "n/a"
+        str(len(networks)) if networks else "",
+        str(len(devices)) if devices else ""
       )
 
   console.print(table)

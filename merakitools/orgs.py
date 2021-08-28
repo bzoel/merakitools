@@ -8,7 +8,7 @@ from typing import List, Optional
 import typer
 from merakitools.console import console
 from merakitools.dashboardapi import dashboard, APIError
-from merakitools.meraki_helpers import find_orgs_by_name
+from merakitools.meraki_helpers import find_org_by_name, find_orgs_by_name, api_req
 from merakitools.formatting_helpers import table_with_columns
 from rich import inspect
 
@@ -49,3 +49,60 @@ def list(name: Optional[str] = None, include_counts: bool = False):
       )
 
   console.print(table)
+
+@app.command()
+def create_ip_objects(
+  organization_name: str,
+  group_name: str = None,
+  object: Optional[List[str]] = None
+):
+  """
+  Create new IP objects within organization, optionally adding to specified group
+  """
+  if not object: 
+    console.print("No objects provided")
+    raise typer.Abort()
+
+  org = find_org_by_name(organization_name)
+
+  # Iterate through each new object
+  new_objects = []
+  for obj in object:
+    args = len(obj.split("!"))
+    # Each port item should  be formatted as 'objectIP' or 'objectName!objectIP'
+    if not 0 < args < 3:
+      console.print("Incorect --object formatting")
+      raise typer.Abort()
+
+    if args == 2:
+      # 'objectName!objectIP' format
+      obj_name, obj_cidr = obj.split('!')
+    elif args == 1:
+      # 'objectIP' format
+      obj_cidr = obj
+      obj_name = obj.replace('.', '-')
+
+    new_obj = api_req(
+      "organizations/{org['id']}/policyObjects",
+      method="POST",
+      json={
+        "name": obj_name,
+        "category": "network",
+        "type": "cidr",
+        "cidr": obj_cidr
+      })
+    new_objects.append(new_obj["id"])
+    console.print(f"Created object named {obj_name} with IP {obj_cidr}")
+
+  # Create a group with the new objects included
+  if group_name:
+    new_group = api_req(
+      f"organizations/{org['id']}/policyObjects/groups",
+      method='POST',
+      json={
+        'name': group_name,
+        'category': 'NetworkObjectGroup',
+        'objectIds': new_objects
+      }
+    )
+    console.print(f"Created group named {group_name}")

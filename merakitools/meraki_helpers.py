@@ -4,6 +4,7 @@ Billy Zoellers
 
 CLI tools for managing Meraki networks based on Typer
 """
+import os
 from merakitools.console import console
 from merakitools.dashboardapi import dashboard
 from typer import Abort
@@ -49,3 +50,26 @@ def find_network_by_name(org_name: str, net_name: str):
   except StopIteration:
     print("Network not found.")
     raise Abort() 
+
+def api_req(resource: str, method: str = "GET", *kwargs):
+  """
+  API request outside of the Meraki Python SDK
+  """
+  base_url = "https://api.meraki.com/api/v1"
+  headers = {
+    "Accept": "application/json",
+    "X-Cisco-Meraki-API-Key": os.getenv('MERAKI_DASHBOARD_API_KEY')
+  }
+
+  resp = requests.request(
+    url=f"{base_url}/{resource}",
+    method=method,
+    headers=headers,
+    **kwargs
+  )
+
+  resp.raise_for_status()
+  if resp.text:
+    return resp.json()
+
+  return {}

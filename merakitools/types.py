@@ -38,5 +38,23 @@ class DeviceSortOptions(str, Enum):
   model = "model"
 
 class MXInternetUplinks(str, Enum):
+  """
+  Uplink types on an MX device
+  """
   one = "internet1"
   two = "internet2"
+
+class TrafficDirection(str, Enum):
+  """
+  Directions traffic can flow from an interface
+  """
+  total = "total"
+  recv = "recv"
+  sent = "sent"
+
+class MSInterfaceMode(str, Enum):
+  """
+  Interface modes on an MS switch
+  """
+  access = "access"
+  trunk = "trunk"

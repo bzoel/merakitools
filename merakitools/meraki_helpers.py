@@ -5,6 +5,7 @@ Billy Zoellers
 CLI tools for managing Meraki networks based on Typer
 """
 import os
+import requests
 from merakitools.console import console
 from merakitools.dashboardapi import dashboard
 from typer import Abort
@@ -14,7 +15,8 @@ def find_orgs_by_name(org_name: str):
   """
   Given a name, find any matching organizations
   """
-  orgs = dashboard.organizations.getOrganizations()
+  with console.status("Accessing API..."):
+    orgs = dashboard.organizations.getOrganizations()
   if org_name:
     orgs = [org for org in orgs if org_name in org['name']]
   return orgs
@@ -43,7 +45,8 @@ def find_network_by_name(org_name: str, net_name: str):
   Find a network given an orgaization name and network name
   """
   org = find_org_by_name(org_name)
-  nets = dashboard.organizations.getOrganizationNetworks(org["id"])
+  with console.status("Accessing API..."):
+    nets = dashboard.organizations.getOrganizationNetworks(org["id"])
 
   try:
     return next(net for net in nets if net["name"] == net_name)

@@ -119,8 +119,10 @@ def create_staticnat(
       raise typer.Abort()
 
     if args == 3:
+      # 'protocol!portNum!allowedIPs' format
       proto, num, allowed_ips = p.split("!")
     elif args == 2:
+      # 'protocol!portNum' format
       proto, num = p.split("!")
       allowed_ips = 'any'
 

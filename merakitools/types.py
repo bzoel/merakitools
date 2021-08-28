@@ -36,3 +36,7 @@ class DeviceSortOptions(str, Enum):
   """
   name = "name"
   model = "model"
+
+class MXInternetUplinks(str, Enum):
+  one = "internet1"
+  two = "internet2"

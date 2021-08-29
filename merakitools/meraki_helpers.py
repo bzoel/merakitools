@@ -54,7 +54,7 @@ def find_network_by_name(org_name: str, net_name: str):
     print("Network not found.")
     raise Abort() 
 
-def api_req(resource: str, method: str = "GET", *kwargs):
+def api_req(resource: str, method: str = "GET", **kwargs):
   """
   API request outside of the Meraki Python SDK
   """

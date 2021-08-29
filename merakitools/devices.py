@@ -125,6 +125,10 @@ def reboot(
   """
   Reboot device(s)
   """
+  if not serial:
+    console.print("No serial numbers entered.")
+    raise typer.Abort()
+
   for sn in serial:
     reboot = dashboard.devices.rebootDevice(serial=sn)
     if reboot["success"]:
@@ -140,6 +144,10 @@ def blink_led(
   """
   Blink the LEDs of device(s)
   """
+  if not serial:
+    console.print("No serial numbers entered.")
+    raise typer.Abort()
+
   for sn in serial:
     blink = dashboard.devices.blinkDeviceLeds(serial=sn, duration=duration)
     console.print(f"Blinking [bold]{sn}[/bold] LEDs for {blink['duration']} seconds")

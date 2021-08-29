@@ -8,7 +8,7 @@ from typing import List, Optional
 import typer
 from merakitools.console import console
 from merakitools.dashboardapi import dashboard
-from merakitools.meraki_helpers import find_network_by_name, find_org_by_name
+from merakitools.meraki_helpers import api_req, find_network_by_name, find_org_by_name
 from merakitools.formatting_helpers import table_with_columns
 from merakitools.types import DeviceModel, DeviceSortOptions
 from rich import inspect
@@ -117,3 +117,29 @@ def show_lldp(
           data['lldp'].get('managementAddress')
         )
     console.print(table)
+
+@app.command()
+def reboot(
+  serial: List[str] = None
+):
+  """
+  Reboot device(s)
+  """
+  for sn in serial:
+    reboot = dashboard.devices.rebootDevice(serial=sn)
+    if reboot["success"]:
+      console.print(f"Rebooted device with SN [bold]{sn}")
+    else:
+      console.print(f"Unabe to reboot device with SN [bold]{sn}")
+
+@app.command()
+def blink_led(
+  serial: List[str] = None,
+  duration: int = typer.Option(20, min=5, max=120)
+):
+  """
+  Blink the LEDs of device(s)
+  """
+  for sn in serial:
+    blink = dashboard.devices.blinkDeviceLeds(serial=sn, duration=duration)
+    console.print(f"Blinking [bold]{sn}[/bold] LEDs for {blink['duration']} seconds")

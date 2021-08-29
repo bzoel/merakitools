@@ -19,8 +19,7 @@ def list(name: Optional[str] = None, include_counts: bool = False):
   """
   List Meraki organizations
   """
-  with console.status("Accessing API..."):
-    orgs = find_orgs_by_name(name)
+  orgs = find_orgs_by_name(name)
   console.print(f"[bold]Found {len(orgs)} organizations")
 
   if not orgs:

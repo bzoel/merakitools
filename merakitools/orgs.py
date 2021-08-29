@@ -51,6 +51,34 @@ def list(name: Optional[str] = None, include_counts: bool = False):
   console.print(table)
 
 @app.command()
+def api(
+  organization_name: str,
+  enable: bool = typer.Option(None, "--enable/--disable")
+):
+  """
+  Enable or disable Meraki API
+  """
+  if enable == None:
+    console.print("You must specify --enable or --disable")
+    raise typer.Abort()
+  
+  # Check current API setting
+  org = find_org_by_name(organization_name)
+  if org["api"]["enabled"] == enable:
+    console.print(f"API for [bold]{org['name']}[/bold] is already {'enabled' if enable else 'disabled'}")
+    raise typer.Abort()
+
+  with console.status("Accessing API..."):
+    org = dashboard.organizations.updateOrganization(
+      organizationId=org["id"],
+      name= org["name"],
+      api={
+        "enabled": enable
+      }
+    )
+  console.print(f"API for [bold]{org['name']}[/bold] is now {'enabled' if org['api']['enabled'] else 'disabled'}")
+
+@app.command()
 def create_ip_objects(
   organization_name: str,
   group_name: str = None,
@@ -106,3 +134,28 @@ def create_ip_objects(
       }
     )
     console.print(f"Created group named {group_name}")
+
+@app.command()
+def list_api_requests(
+  organization_name: str
+):
+  """
+  List API requests for organization
+  """
+  org = find_org_by_name(organization_name)
+  with console.status("Accessing API..."):
+    api_requests = dashboard.organizations.getOrganizationApiRequests(org["id"], total_pages="all", perPage=250)
+  table = table_with_columns(
+    ["Method", "Path", "Response Code", "Source IP", "Time"],
+    title=f"API Requests for {org['name']}"
+  )
+  for req in api_requests:
+    table.add_row(
+      req["method"],
+      f"{req['path']}{req['queryString']}",
+      str(req["responseCode"]),
+      req["sourceIp"],
+      req["ts"]
+    )
+
+  console.print(table)

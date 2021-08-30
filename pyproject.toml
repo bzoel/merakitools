@@ -16,6 +16,7 @@ meraki = "^1.12.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+typer-cli = "^0.0.12"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

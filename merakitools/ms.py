@@ -4,6 +4,7 @@ Billy Zoellers
 
 CLI tools for managing Meraki networks based on Typer
 """
+from meraki.exceptions import APIError
 import typer
 from typing import List
 from merakitools.console import console
@@ -15,6 +16,112 @@ from rich import inspect
 from rich.progress import Progress
 
 app = typer.Typer()
+
+@app.command()
+def list_stacks(
+  organization_name: str,
+  network_name: str
+):
+  """
+  List switch stacks
+  """
+  # Get a list of switch stacks for specified network
+  net = find_network_by_name(organization_name, network_name)
+  with console.status("Accessing API..."):
+    stacks = dashboard.switch.getNetworkSwitchStacks(networkId=net["id"])
+
+  # Exit if no stacks are found
+  if len(stacks) == 0:
+    console.print("No switch stacks found.")
+    raise typer.Exit()
+
+  # Create a table of stacks
+  table = table_with_columns(
+    ['Serials'],
+    title=f"Switch stacks in {net['name']}",
+    first_column_name="Name",
+  )
+  for stack in stacks:
+    table.add_row(
+      stack["name"],
+      f"{', '.join(stack['serials'])}"
+    )
+  console.print(table)
+
+@app.command()
+def list_routing_interfaces(
+  organization_name: str,
+  network_name: str,
+  serial: str,
+  include_dhcp: bool = False
+):
+  """
+  List L3 routed interfaces on an MS switch or stack
+  """
+  net = find_network_by_name(organization_name, network_name)
+  with console.status("Accessing API..."):
+    try:
+      routing_interfaces = dashboard.switch.getDeviceSwitchRoutingInterfaces(serial=serial)
+      stack = False
+    except APIError as err:
+      if err.message['errors'][0] == "This endpoint is not supported for switches in switch stack":
+        console.print(f"This switch is a member of a stack.")
+        stacks = dashboard.switch.getNetworkSwitchStacks(networkId=net["id"])
+        stack = next(stack for stack in stacks if serial in stack["serials"])
+        routing_interfaces = dashboard.switch.getNetworkSwitchStackRoutingInterfaces(
+          networkId=net["id"],
+          switchStackId=stack["id"]
+        )
+      else:
+        console.print(err.message)
+        raise typer.Abort()
+
+  # Create and print a table
+  cols = ["Subnet", "Interface IP", "VLAN ID"]
+  if (include_dhcp):
+    cols.append("DHCP")
+  table = table_with_columns(cols, title="Routing interfaces", first_column_name="Name")
+  for intf in routing_interfaces:
+    rows = [
+      intf["name"],
+      intf["subnet"],
+      intf["interfaceIp"],
+      str(intf["vlanId"])
+    ]
+
+    if include_dhcp:
+      # Get DHCP info
+      with console.status("Accessing API..."):
+        if stack:
+          dhcp = dashboard.switch.getNetworkSwitchStackRoutingInterfaceDhcp(
+            networkId=net["id"],
+            switchStackId=stack["id"],
+            interfaceId=intf["interfaceId"]
+          )
+        else:
+          dhcp = dashboard.switch.getDeviceSwitchRoutingInterfaceDhcp(
+            serial=serial,
+            interfaceId=intf["interfaceId"]
+          )
+
+      # Format DHCP cell, and add to table rows
+      if dhcp["dhcpMode"] == "dhcpDisabled":
+        dhcp_formatted = "Disabled"
+      elif dhcp["dhcpMode"] == "dhcpServer":
+        if dhcp["dnsNameserversOption"] == "custom":
+          dhcp_formatted = f"[bold]Server[/bold] DNS: {', '.join(dhcp['dnsCustomNameservers'])}"
+        else:
+          dhcp_formatted = f"[bold]Server[/bold] {dhcp['dnsNameserversOption'].capitalize()}"
+      elif dhcp["dhcpMode"] == "dhcpRelay":
+        dhcp_formatted = f"[bold]Relay[/bold] Servers: {', '.join(dhcp['dhcpRelayServerIps'])}"
+      else:
+        dhcp_formatted = dhcp["dhcpMode"].capitalize()
+        inspect(dhcp)
+      rows.append(dhcp_formatted)
+
+    table.add_row(*rows)
+
+  console.print(table)
 
 @app.command()
 def diag_switchport_traffic(

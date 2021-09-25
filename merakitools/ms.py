@@ -64,7 +64,7 @@ def list_routing_interfaces(
       routing_interfaces = dashboard.switch.getDeviceSwitchRoutingInterfaces(serial=serial)
       stack = False
     except APIError as err:
-      if err.message['errors'][0] == "This endpoint is not supported for switches in switch stack":
+      if "switches in switch stack" in err.message['errors'][0].lower():
         console.print(f"This switch is a member of a stack.")
         stacks = dashboard.switch.getNetworkSwitchStacks(networkId=net["id"])
         stack = next(stack for stack in stacks if serial in stack["serials"])
@@ -75,6 +75,10 @@ def list_routing_interfaces(
       else:
         console.print(err.message)
         raise typer.Abort()
+  
+  if not routing_interfaces:
+    console.print("No routing interfaces found.")
+    raise typer.Exit()
 
   # Create and print a table
   cols = ["Subnet", "Interface IP", "VLAN ID"]

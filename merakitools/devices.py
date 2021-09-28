@@ -12,6 +12,7 @@ from merakitools.meraki_helpers import api_req, find_network_by_name, find_org_b
 from merakitools.formatting_helpers import table_with_columns
 from merakitools.types import DeviceModel, DeviceSortOptions
 from rich import inspect
+from rich.prompt import Confirm
 
 app = typer.Typer()
 
@@ -51,6 +52,78 @@ def list(
       device["firmware"]
     )
   console.print(table)
+
+@app.command()
+def update(
+  serial: List[str],
+  name: Optional[str] = None,
+  address: Optional[str] = None,
+  notes: Optional[str] = None,
+  add_tag: Optional[List[str]] = None,
+  remove_tag: Optional[List[str]] = None
+):
+  """
+  Update parameters of a Meraki device
+  """
+  if not serial:
+    console.print("You must specify a device using `--serial`")
+    raise typer.Abort()
+
+  # Get each specified device
+  devices = []
+  for sn in serial:
+    device = dashboard.devices.getDevice(serial=sn)
+    console.print(f"Found device named {device.get('name', sn)} with serial {sn}")
+    devices.append(device)
+
+  # Confirm same name assignment to multiple devices
+  if name and len(devices) > 1:
+    console.print(f"[bold red]You specified a name for {len(devices)} devices")
+    confirm = Confirm.ask(f" Do you want to assign the same name to multiple devices?", console=console)
+    if not confirm:
+      raise typer.Abort()
+
+  for device in devices:
+    device_sn = device["serial"]
+    device_name = device.get('name', device_sn)
+    updated_device = {
+      "serial": device_sn
+    }
+    # Set new name
+    if name:
+      console.print(f" Renamed {device_name} to {name}")
+      updated_device["name"] = name
+      device_name = name
+
+    # Set new address
+    if address:
+      console.print(f" Assigned address to {device_name}")
+      updated_device["address"] = address
+      updated_device["moveMapMarker"] = True
+
+    # Set new notes
+    if notes:
+      console.print(f" Added notes to {device_name}")
+      updated_device["notes"] = notes
+
+    if add_tag or remove_tag:
+      updated_device["tags"] = device["tags"]
+    # Add tags
+    if add_tag:
+      for tag in add_tag:
+        if tag not in updated_device["tags"]:
+          console.print(f" Added tag {tag} to {device_name}")
+          updated_device["tags"].append(tag)
+
+    # Remove tags
+    if remove_tag:
+      for tag in remove_tag:
+        if tag in updated_device["tags"]:
+          console.print(f" Removed tag {tag} to {device_name}")
+          updated_device["tags"].remove(tag)
+    
+    device = dashboard.devices.updateDevice(**updated_device)
+    console.print(f"Updated device {device_name}")
 
 @app.command()
 def show_lldp(

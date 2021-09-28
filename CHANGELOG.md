@@ -1,4 +1,6 @@
 # merakitools - CHANGELOG
+### v0.1.5
+ - Added multiple commands to **ms** and **mr** modules
 
 ### v0.1.4
  - Added **ms** and **mr** modules

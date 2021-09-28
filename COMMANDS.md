@@ -41,6 +41,7 @@ $ merakitools devices [OPTIONS] COMMAND [ARGS]...
 * `list`: List Meraki devices
 * `reboot`: Reboot device(s)
 * `show-lldp`: Show CDP/LLDP information for Meraki...
+* `update`: Update parameters of a Meraki device
 
 ### `merakitools devices blink-led`
 
@@ -112,6 +113,29 @@ $ merakitools devices show-lldp [OPTIONS]
 * `--network-name TEXT`
 * `--help`: Show this message and exit.
 
+### `merakitools devices update`
+
+Update parameters of a Meraki device
+
+**Usage**:
+
+```console
+$ merakitools devices update [OPTIONS] SERIAL...
+```
+
+**Arguments**:
+
+* `SERIAL...`: [required]
+
+**Options**:
+
+* `--name TEXT`
+* `--address TEXT`
+* `--notes TEXT`
+* `--add-tag TEXT`
+* `--remove-tag TEXT`
+* `--help`: Show this message and exit.
+
 ## `merakitools mr`
 
 Meraki MR wireless
@@ -132,6 +156,8 @@ $ merakitools mr [OPTIONS] COMMAND [ARGS]...
 * `list-rf`: List RF settings for a network
 * `list-rf-profiles`: List RF profiles for a network
 * `list-ssid`: List configured SSIDs for a network
+* `show-ssid`: Show an SSID for a network TODO: formatting
+* `update-ssid`: Update an SSID for a network
 
 ### `merakitools mr list-mesh`
 
@@ -211,6 +237,57 @@ $ merakitools mr list-ssid [OPTIONS] ORGANIZATION_NAME NETWORK_NAME
 * `--include-psk / --no-include-psk`: [default: False]
 * `--help`: Show this message and exit.
 
+### `merakitools mr show-ssid`
+
+Show an SSID for a network
+
+TODO: formatting
+
+**Usage**:
+
+```console
+$ merakitools mr show-ssid [OPTIONS] ORGANIZATION_NAME NETWORK_NAME SSID_NUMBER
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+* `NETWORK_NAME`: [required]
+* `SSID_NUMBER`: [required]
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+### `merakitools mr update-ssid`
+
+Update an SSID for a network
+
+**Usage**:
+
+```console
+$ merakitools mr update-ssid [OPTIONS] ORGANIZATION_NAME NETWORK_NAME SSID_NUMBER
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+* `NETWORK_NAME`: [required]
+* `SSID_NUMBER`: [required]
+
+**Options**:
+
+* `--confirm / --no-confirm`: [default: True]
+* `--enabled / --no-enabled`
+* `--name TEXT`
+* `--auth-mode [open|psk|open-with-radius|8021x-meraki|8021x-radius|8021x-google|8021x-localradius|ipsk-with-radius|ipsk-without-radius]`
+* `--tag-vlan / --no-tag-vlan`
+* `--default-vlan-id INTEGER RANGE`
+* `--pre-shared-key TEXT`
+* `--min-bitrate INTEGER`
+* `--ip-assignment-mode [NAT mode|Bridge mode|Layer 3 roaming|Layer 3 roaming with a concentrator|VPN]`
+* `--help`: Show this message and exit.
+
 ## `merakitools ms`
 
 Meraki MS switches
@@ -228,6 +305,9 @@ $ merakitools ms [OPTIONS] COMMAND [ARGS]...
 **Commands**:
 
 * `diag-switchport-traffic`: Diagnose all switchports on a network of MS...
+* `list-routing-interfaces`: List L3 routed interfaces on an MS switch or...
+* `list-stacks`: List switch stacks
+* `update-switchport`: Update switchport(s)
 
 ### `merakitools ms diag-switchport-traffic`
 
@@ -255,6 +335,76 @@ $ merakitools ms diag-switchport-traffic [OPTIONS] ORGANIZATION_NAME NETWORK_NAM
 * `--interface-mode [access|trunk]`
 * `--ignore-device-tag TEXT`
 * `--ignore-switchport-tag TEXT`
+* `--help`: Show this message and exit.
+
+### `merakitools ms list-routing-interfaces`
+
+List L3 routed interfaces on an MS switch or stack
+
+**Usage**:
+
+```console
+$ merakitools ms list-routing-interfaces [OPTIONS] ORGANIZATION_NAME NETWORK_NAME SERIAL
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+* `NETWORK_NAME`: [required]
+* `SERIAL`: [required]
+
+**Options**:
+
+* `--include-dhcp / --no-include-dhcp`: [default: False]
+* `--help`: Show this message and exit.
+
+### `merakitools ms list-stacks`
+
+List switch stacks
+
+**Usage**:
+
+```console
+$ merakitools ms list-stacks [OPTIONS] ORGANIZATION_NAME NETWORK_NAME
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+* `NETWORK_NAME`: [required]
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+### `merakitools ms update-switchport`
+
+Update switchport(s)
+
+**Usage**:
+
+```console
+$ merakitools ms update-switchport [OPTIONS] SERIAL
+```
+
+**Arguments**:
+
+* `SERIAL`: [required]
+
+**Options**:
+
+* `--port INTEGER RANGE`
+* `--port-range TEXT`
+* `--name TEXT`
+* `--enabled / --no-enabled`
+* `--poe-enabled / --no-poe-enabled`
+* `--type [access|trunk]`
+* `--vlan INTEGER RANGE`
+* `--voice-vlan INTEGER RANGE`
+* `--rtsp-enabled / --no-rtsp-enabled`
+* `--stp-guard [disabled|root guard|bpdu guard|loop guard]`
+* `--add-tag TEXT`
+* `--remove-tag TEXT`
 * `--help`: Show this message and exit.
 
 ## `merakitools mx`

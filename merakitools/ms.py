@@ -4,19 +4,129 @@ Billy Zoellers
 
 CLI tools for managing Meraki networks based on Typer
 """
+import time
+from meraki import exceptions
 from meraki.exceptions import APIError
 import typer
-from typing import List
+from typing import List, Optional
 from merakitools.console import console
 from merakitools.dashboardapi import dashboard
-from merakitools.meraki_helpers import find_network_by_name
+from merakitools.meraki_helpers import find_network_by_name, find_org_id_by_device_serial
 from merakitools.formatting_helpers import table_with_columns
-from merakitools.types import DeviceModel, MSInterfaceMode, TrafficDirection
+from merakitools.types import DeviceModel, MSInterfaceMode, TrafficDirection, MSSTPGuardType
 from rich import inspect
-from rich.progress import Progress
+from rich.progress import Progress, track
 
 app = typer.Typer()
 
+@app.command()
+def update_switchport(
+  serial: str,
+  port: Optional[List[int]] = typer.Option(None, min=1, max=52),
+  port_range: Optional[str] = None,
+  name: Optional[str] = None,
+  enabled: Optional[bool] = None,
+  poe_enabled: Optional[bool] = None,
+  type: Optional[MSInterfaceMode] = None,
+  vlan: Optional[int] = typer.Option(None, min=1, max=4094),
+  voice_vlan: Optional[int] = typer.Option(None, min=1, max=4094),
+  rtsp_enabled: Optional[bool] = None,
+  stp_guard: Optional[MSSTPGuardType] = None,
+  add_tag: Optional[List[str]] = None,
+  remove_tag: Optional[List[str]] = None
+):
+  """
+  Update switchport(s)
+  """
+  # Validate device by trying to find OrgID
+  org_id = find_org_id_by_device_serial(serial=serial)
+
+  # Create range of ports
+  ports = []
+  if port_range:
+    range_begin, range_end = port_range.split(":")
+    ports = list(range(int(range_begin), int(range_end)+1))
+  
+  # Add specified ports to the range
+  for port in port:
+    if port not in ports:
+      ports.append(port)
+  
+  if len(ports) < 1:
+    console.print("[red]No ports specified.")
+    raise typer.Abort()
+
+  # Iterate through each port in the range
+  actions = []
+  for port in track(ports, description="Processing switchports", console=console):
+    try:
+      port = dashboard.switch.getDeviceSwitchPort(
+        serial=serial,
+        portId=port
+      )
+    except APIError as err:
+      console.print(err.message)
+      raise typer.Abort()
+
+    # Compile a dict of settings to be updated
+    update = {}
+    items = {
+      "name": name,
+      "enabled": enabled,
+      "poeEnabled": poe_enabled,
+      "type": type.value if type is not None else type,
+      "vlan": vlan,
+      "voiceVlan": voice_vlan,
+      "rtspEnabled": rtsp_enabled,
+      "stpGuard": stp_guard.value if stp_guard is not None else stp_guard
+    }
+    for k, v in items.items():
+      if v is not None:
+        if v is not port[k]:
+          update[k] = v
+
+    # Update tags
+    if add_tag or remove_tag:
+      update["tags"] = port["tags"]
+      for tag in add_tag:
+        if tag not in update["tags"]:
+          update["tags"].append(tag)
+      for tag in remove_tag:
+        if tag in update["tags"]:
+          update["tags"].remove(tag)
+
+    # Commit the updated port to Meraki dashboard
+    if update:
+      update_action = dashboard.batch.switch.updateDeviceSwitchPort(
+        serial=serial,
+        portId=port["portId"],
+        **update
+      )
+      actions.append(update_action)
+
+  # Use an action batch to execute in one run
+  if actions:
+    with console.status("Waiting for API batch to complete..."):
+      action_batch = dashboard.organizations.createOrganizationActionBatch(
+        organizationId=org_id,
+        actions=actions,
+        confirmed=True
+      )
+      while True:
+        if action_batch["status"]["completed"] or action_batch["status"]["failed"]:
+          break
+        time.sleep(5)
+        action_batch = dashboard.organizations.getOrganizationActionBatch(
+          organizationId=org_id,
+          actionBatchId=action_batch["id"]
+        )
+    if action_batch["status"]["completed"]:
+      console.print(f"[green]Updated {len(action_batch['actions'])} switchports")
+      raise typer.Exit()
+    console.print(f"[red]Failed to update switchports")
+  else:
+    console.print(f"[red]No changes to apply.")
+  
 @app.command()
 def list_stacks(
   organization_name: str,

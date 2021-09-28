@@ -58,3 +58,12 @@ class MSInterfaceMode(str, Enum):
   """
   access = "access"
   trunk = "trunk"
+
+class MSSTPGuardType(str, Enum):
+  """"
+  STP Guard modues on an MS switch
+  """
+  disabled = "disabled"
+  root = "root guard"
+  bpdu = "bpdu guard"
+  loop = "loop guard"

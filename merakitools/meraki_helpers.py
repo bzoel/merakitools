@@ -5,7 +5,9 @@ Billy Zoellers
 CLI tools for managing Meraki networks based on Typer
 """
 import os
+from meraki.exceptions import APIError
 import requests
+import typer
 from merakitools.console import console
 from merakitools.dashboardapi import dashboard
 from typer import Abort
@@ -39,6 +41,20 @@ def find_org_by_name(org_name: str):
 
   print("No orgs found.")
   raise Abort()
+
+def find_org_id_by_device_serial(serial: str):
+  """
+  Given a serial, find the organization it belongs to
+  """
+  try:
+    device = dashboard.devices.getDevice(serial=serial)
+  except APIError as err:
+    console.print(f"[red]Unable to find device with serial \'{serial}\'")
+    raise typer.Abort()
+
+  network = dashboard.networks.getNetwork(networkId=device["networkId"])
+  
+  return network["organizationId"]
 
 def find_network_by_name(org_name: str, net_name: str):
   """

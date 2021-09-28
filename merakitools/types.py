@@ -67,3 +67,27 @@ class MSSTPGuardType(str, Enum):
   root = "root guard"
   bpdu = "bpdu guard"
   loop = "loop guard"
+
+class MRSSIDAuthMode(str, Enum):
+  """
+  Authentication modes on an MR SSID
+  """
+  open = "open"
+  psk = "psk"
+  open_with_radius = "open-with-radius"
+  dot1x_meraki = "8021x-meraki"
+  dot1x_radius = "8021x-radius"
+  dot1x_google = "8021x-google"
+  dot1x_localradius = "8021x-localradius"
+  ipsk_with_radius = "ipsk-with-radius"
+  ipsk_without_radius = "ipsk-without-radius"
+
+class MRSSIDIPAssignmentMode(str, Enum):
+  """
+  IP assignment mode on an MR SSID
+  """
+  nat_mode = "NAT mode"
+  bridge_mode = "Bridge mode"
+  l3_roaming = "Layer 3 roaming"
+  l3_roaming_concentrator = "Layer 3 roaming with a concentrator"
+  vpn = "VPN"

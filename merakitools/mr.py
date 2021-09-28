@@ -5,15 +5,16 @@ Billy Zoellers
 CLI tools for managing Meraki networks based on Typer
 """
 from meraki.exceptions import APIError
+from rich.prompt import Confirm
 import typer
-from typing import List
+from typing import List, Optional
 
 from typer import params
 from merakitools.console import console
 from merakitools.dashboardapi import dashboard
 from merakitools.meraki_helpers import api_req, find_network_by_name, find_org_by_name
 from merakitools.formatting_helpers import table_with_columns
-from merakitools.types import DeviceModel, ProductType
+from merakitools.types import DeviceModel, MRSSIDIPAssignmentMode, ProductType, MRSSIDAuthMode
 from rich import inspect
 from rich.progress import Progress
 
@@ -238,3 +239,80 @@ def list_mesh(
       ap["latestMeshPerformance"]["usagePercentage"]
     )
   console.print(table)
+
+@app.command()
+def show_ssid(
+  organization_name: str,
+  network_name: str,
+  ssid_number: int = typer.Argument(...,min=0,max=15)
+):
+  """
+  Show an SSID for a network
+
+  TODO: formatting
+  """
+  net = find_network_by_name(organization_name, network_name)
+  with console.status("Accessing API..."):
+    ssid = dashboard.wireless.getNetworkWirelessSsid(
+      networkId=net["id"],
+      number=ssid_number
+    )
+
+  console.print(ssid)
+
+@app.command()
+def update_ssid(
+  organization_name: str,
+  network_name: str,
+  ssid_number: int = typer.Argument(...,min=0,max=15),
+  confirm: bool = True,
+  enabled: Optional[bool] = None,
+  name: Optional[str] = None,
+  auth_mode: Optional[MRSSIDAuthMode] = None,
+  tag_vlan: Optional[bool] = None,
+  default_vlan_id: Optional[int] = typer.Option(None, min=1, max=4094),
+  pre_shared_key: Optional[str] = None,
+  min_bitrate: Optional[int] = None,
+  ip_assignment_mode: Optional[MRSSIDIPAssignmentMode] = None
+):
+  """
+  Update an SSID for a network
+  """
+  net = find_network_by_name(organization_name, network_name)
+  with console.status("Accessing API..."):
+    ssid = dashboard.wireless.getNetworkWirelessSsid(
+      networkId=net["id"],
+      number=ssid_number
+    )
+
+  # Confirm SSID name with user before continuing
+  if confirm:
+    console.print(f"SSID number [bold]{ssid_number}[/bold] is named [bold]{ssid['name']}[/bold]")
+    confirmed = Confirm.ask("Do you want to continue?", console=console)
+    if not confirmed:
+      raise typer.Abort()
+  
+  update = {}
+  items = {
+      "name": name,
+      "enabled": enabled,
+      "useVlanTagging": tag_vlan,
+      "defaultVlanId": default_vlan_id,
+      "authMode": auth_mode.value if auth_mode is not None else auth_mode,
+      "minBitrate": min_bitrate,
+      "psk": pre_shared_key,
+      "ipAssignmentMode": ip_assignment_mode.value if ip_assignment_mode is not None else ip_assignment_mode
+    }
+  for k, v in items.items():
+    if v is not None:
+      if v is not ssid.get(k, None):
+        update[k] = v
+
+  # Update SSID
+  ssid = dashboard.wireless.updateNetworkWirelessSsid(
+    networkId=net["id"],
+    number=ssid_number,
+    **update
+  )
+  console.print(f"[bold green]SSID \'{ssid['name']}\' has been updated.")
+  console.print(f" The following parameters were updated: {', '.join(update)}")

@@ -57,16 +57,21 @@ def api(
   """
   Enable or disable Meraki API
   """
-  if enable == None:
-    console.print("You must specify --enable or --disable")
-    raise typer.Abort()
-  
-  # Check current API setting
+  # Get organization and print current API status
   org = find_org_by_name(organization_name)
-  if org["api"]["enabled"] == enable:
-    console.print(f"API for [bold]{org['name']}[/bold] is already {'enabled' if enable else 'disabled'}")
-    raise typer.Abort()
+  api_status = org["api"]["enabled"]
+  console.print(f"API for [bold]{org['name']}[/bold] is currently [bold]{'enabled' if api_status else 'disabled'}.")
 
+  # No change requested
+  if enable is None:
+    return api_status
+
+  # No change required
+  if api_status == enable:
+    console.print(f" No change. API is already [bold]{'enabled' if api_status else 'disabled'}.")
+    return api_status
+
+  # Change API status
   with console.status("Accessing API..."):
     org = dashboard.organizations.updateOrganization(
       organizationId=org["id"],
@@ -75,7 +80,8 @@ def api(
         "enabled": enable
       }
     )
-  console.print(f"API for [bold]{org['name']}[/bold] is now {'enabled' if org['api']['enabled'] else 'disabled'}")
+  console.print(f" API is now [bold]{'enabled' if enable else 'disabled'}")
+  return enable
 
 @app.command()
 def create_ip_objects(

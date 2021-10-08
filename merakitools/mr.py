@@ -339,18 +339,36 @@ def show_ssid(
 def update_ssid(
     organization_name: str,
     network_name: str,
-    ssid_number: int = typer.Argument(..., min=0, max=15),
-    confirm: bool = True,
-    enabled: Optional[bool] = None,
-    name: Optional[str] = None,
-    auth_mode: Optional[MRSSIDAuthMode] = None,
-    encryption_mode: Optional[MRSSIDEncryptionMode] = None,
-    wpa_encryption_mode: Optional[MRSSIDWPAEncrytionMode] = None,
-    tag_vlan: Optional[bool] = None,
-    default_vlan_id: Optional[int] = typer.Option(None, min=1, max=4094),
-    pre_shared_key: Optional[str] = None,
-    min_bitrate: Optional[int] = None,
-    ip_assignment_mode: Optional[MRSSIDIPAssignmentMode] = None,
+    ssid_number: int = typer.Argument(..., help="The SSID number", min=0, max=15),
+    confirm: bool = typer.Option(
+        None, help="Confirm the current SSID name before applying changes"
+    ),
+    enabled: Optional[bool] = typer.Option(
+        None, help="Whether or not the SSID is enabled"
+    ),
+    name: Optional[str] = typer.Option(None, help="The name of the SSID"),
+    auth_mode: Optional[MRSSIDAuthMode] = typer.Option(
+        None, help="The association control method for the SSID"
+    ),
+    encryption_mode: Optional[MRSSIDEncryptionMode] = typer.Option(
+        None, help="The PSK encryption mode for the SSID"
+    ),
+    wpa_encryption_mode: Optional[MRSSIDWPAEncrytionMode] = typer.Option(
+        None, help="The types of WPA encryption"
+    ),
+    tag_vlan: Optional[bool] = typer.Option(
+        None, help="Whether or not traffic shuold be directed to use specific VLANs"
+    ),
+    default_vlan_id: Optional[int] = typer.Option(
+        None, help="The default VLAN ID used for 'all other APs'", min=1, max=4094
+    ),
+    pre_shared_key: Optional[str] = typer.Option(None, help="The passkey for the SSID"),
+    min_bitrate: Optional[int] = typer.Option(
+        None, help="The minimum bitrate in Mbps", min=1, max=54
+    ),
+    ip_assignment_mode: Optional[MRSSIDIPAssignmentMode] = typer.Option(
+        None, help="The client IP assignment mode"
+    ),
 ):
     """
     Update an SSID for a network

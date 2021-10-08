@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "merakitools"
-version = "0.1.5"
+version = "0.1.6"
 description = "CLI tools for managing Meraki networks based on Typer"
 authors = ["Billy Zoellers <billy.zoellers@mac.com>"]
 readme = "README.md"

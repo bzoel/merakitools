@@ -1,5 +1,6 @@
 # merakitools - CHANGELOG
 ### v0.1.6
+ - [new] Update network settings
  - [new] Create organization, claim orders, and add admins
  - [new] Enable SAML and update SAML parameters
  - [new] Accept organization name *or* ID

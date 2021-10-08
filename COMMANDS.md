@@ -273,19 +273,21 @@ $ merakitools mr update-ssid [OPTIONS] ORGANIZATION_NAME NETWORK_NAME SSID_NUMBE
 
 * `ORGANIZATION_NAME`: [required]
 * `NETWORK_NAME`: [required]
-* `SSID_NUMBER`: [required]
+* `SSID_NUMBER`: The SSID number  [required]
 
 **Options**:
 
-* `--confirm / --no-confirm`: [default: True]
-* `--enabled / --no-enabled`
-* `--name TEXT`
-* `--auth-mode [open|psk|open-with-radius|8021x-meraki|8021x-radius|8021x-google|8021x-localradius|ipsk-with-radius|ipsk-without-radius]`
-* `--tag-vlan / --no-tag-vlan`
-* `--default-vlan-id INTEGER RANGE`
-* `--pre-shared-key TEXT`
-* `--min-bitrate INTEGER`
-* `--ip-assignment-mode [NAT mode|Bridge mode|Layer 3 roaming|Layer 3 roaming with a concentrator|VPN]`
+* `--confirm / --no-confirm`: Confirm the current SSID name before applying changes  [default: True]
+* `--enabled / --no-enabled`: Whether or not the SSID is enabled
+* `--name TEXT`: The name of the SSID
+* `--auth-mode [open|psk|open-with-radius|8021x-meraki|8021x-radius|8021x-google|8021x-localradius|ipsk-with-radius|ipsk-without-radius]`: The association control method for the SSID
+* `--encryption-mode [wep|wpa]`: The PSK encryption mode for the SSID
+* `--wpa-encryption-mode [WPA1 only|WPA1 and WPA2|WPA2 only|WPA3 Transition Mode|WPA3 only]`: The types of WPA encryption
+* `--tag-vlan / --no-tag-vlan`: Whether or not traffic shuold be directed to use specific VLANs
+* `--default-vlan-id INTEGER RANGE`: The default VLAN ID used for 'all other APs'
+* `--pre-shared-key TEXT`: The passkey for the SSID
+* `--min-bitrate INTEGER RANGE`: The minimum bitrate in Mbps
+* `--ip-assignment-mode [NAT mode|Bridge mode|Layer 3 roaming|Layer 3 roaming with a concentrator|VPN]`: The client IP assignment mode
 * `--help`: Show this message and exit.
 
 ## `merakitools ms`
@@ -487,6 +489,7 @@ $ merakitools networks [OPTIONS] COMMAND [ARGS]...
 **Commands**:
 
 * `list`: List Meraki networks in an organization
+* `update-settings`: Update a network
 
 ### `merakitools networks list`
 
@@ -507,6 +510,28 @@ $ merakitools networks list [OPTIONS] ORGANIZATION_NAME
 * `--product-type [appliance|switch|wireless|camera|systemsManager|enviornmental|sensor|cellularGateway]`
 * `--help`: Show this message and exit.
 
+### `merakitools networks update-settings`
+
+Update a network
+
+**Usage**:
+
+```console
+$ merakitools networks update-settings [OPTIONS] ORGANIZATION_NAME NETWORK_NAME
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+* `NETWORK_NAME`: [required]
+
+**Options**:
+
+* `--confirm / --no-confirm`: Confirm the network name before applying changes  [default: True]
+* `--enable-local-status / --disable-local-status`: Local device status pages
+* `--enable-remote-status / --disable-remote-status`: Remote device status pages
+* `--help`: Show this message and exit.
+
 ## `merakitools orgs`
 
 Meraki organizations
@@ -523,14 +548,18 @@ $ merakitools orgs [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
-* `api`: Enable or disable Meraki API
+* `api`: Organization API status
+* `create`: Create a new Meraki organization
 * `create-ip-objects`: Create new IP objects within organization,...
+* `create-saml-idp`: Create a SAML IDP
+* `create-saml-role`: Create a SAML role
 * `list`: List Meraki organizations
 * `list-api-requests`: List API requests for organization
+* `saml`: Organization SAML status
 
 ### `merakitools orgs api`
 
-Enable or disable Meraki API
+Organization API status
 
 **Usage**:
 
@@ -545,6 +574,26 @@ $ merakitools orgs api [OPTIONS] ORGANIZATION_NAME
 **Options**:
 
 * `--enable / --disable`
+* `--help`: Show this message and exit.
+
+### `merakitools orgs create`
+
+Create a new Meraki organization
+
+**Usage**:
+
+```console
+$ merakitools orgs create [OPTIONS] NAME
+```
+
+**Arguments**:
+
+* `NAME`: [required]
+
+**Options**:
+
+* `--org-admin TEXT`: Org admins in Name!Email format
+* `--claim-order TEXT`
 * `--help`: Show this message and exit.
 
 ### `merakitools orgs create-ip-objects`
@@ -565,6 +614,46 @@ $ merakitools orgs create-ip-objects [OPTIONS] ORGANIZATION_NAME
 
 * `--group-name TEXT`
 * `--object TEXT`
+* `--help`: Show this message and exit.
+
+### `merakitools orgs create-saml-idp`
+
+Create a SAML IDP
+
+**Usage**:
+
+```console
+$ merakitools orgs create-saml-idp [OPTIONS] ORGANIZATION_NAME SAML_X509_CERT SAML_SLO_LOGOUT
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+* `SAML_X509_CERT`: [required]
+* `SAML_SLO_LOGOUT`: [required]
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+### `merakitools orgs create-saml-role`
+
+Create a SAML role
+
+**Usage**:
+
+```console
+$ merakitools orgs create-saml-role [OPTIONS] ORGANIZATION_NAME ROLE
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+* `ROLE`: [required]
+
+**Options**:
+
+* `--access TEXT`: [default: full]
 * `--help`: Show this message and exit.
 
 ### `merakitools orgs list`
@@ -599,4 +688,23 @@ $ merakitools orgs list-api-requests [OPTIONS] ORGANIZATION_NAME
 
 **Options**:
 
+* `--help`: Show this message and exit.
+
+### `merakitools orgs saml`
+
+Organization SAML status
+
+**Usage**:
+
+```console
+$ merakitools orgs saml [OPTIONS] ORGANIZATION_NAME
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+
+**Options**:
+
+* `--enable / --disable`
 * `--help`: Show this message and exit.

@@ -5,6 +5,8 @@
  - [new] Accept organization name *or* ID
  - [new] New spinner and table format
 
+ - [update] *mr update-ssid* command now includes *encryption mode*, *WPA encryption mode*
+
  - [fix] *orgs api* command can list, enable, or disable and is now idempotent
  - [fix] Python Black library for better formatting
  - [fix] Find single organization without y/n questions

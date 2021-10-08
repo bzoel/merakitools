@@ -19,6 +19,8 @@ from merakitools.types import (
     MRSSIDIPAssignmentMode,
     ProductType,
     MRSSIDAuthMode,
+    MRSSIDEncryptionMode,
+    MRSSIDWPAEncrytionMode,
 )
 from rich import inspect
 from rich.progress import Progress
@@ -342,6 +344,8 @@ def update_ssid(
     enabled: Optional[bool] = None,
     name: Optional[str] = None,
     auth_mode: Optional[MRSSIDAuthMode] = None,
+    encryption_mode: Optional[MRSSIDEncryptionMode] = None,
+    wpa_encryption_mode: Optional[MRSSIDWPAEncrytionMode] = None,
     tag_vlan: Optional[bool] = None,
     default_vlan_id: Optional[int] = typer.Option(None, min=1, max=4094),
     pre_shared_key: Optional[str] = None,
@@ -372,12 +376,18 @@ def update_ssid(
         "enabled": enabled,
         "useVlanTagging": tag_vlan,
         "defaultVlanId": default_vlan_id,
-        "authMode": auth_mode.value if auth_mode is not None else auth_mode,
+        "authMode": auth_mode.value if auth_mode is not None else None,
+        "encryptionMode": encryption_mode.value
+        if encryption_mode is not None
+        else None,
+        "wpaEncryptionMode": wpa_encryption_mode.value
+        if wpa_encryption_mode is not None
+        else None,
         "minBitrate": min_bitrate,
         "psk": pre_shared_key,
         "ipAssignmentMode": ip_assignment_mode.value
         if ip_assignment_mode is not None
-        else ip_assignment_mode,
+        else None,
     }
     for k, v in items.items():
         if v is not None:

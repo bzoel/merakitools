@@ -99,6 +99,23 @@ class MRSSIDAuthMode(str, Enum):
     ipsk_without_radius = "ipsk-without-radius"
 
 
+class MRSSIDEncryptionMode(str, Enum):
+    """
+    Encryption modes on an MR SSID
+    """
+
+    wep = "wep"
+    wpa = "wpa"
+
+
+class MRSSIDWPAEncrytionMode(str, Enum):
+    wpa1_only = "WPA1 only"
+    wpa12 = "WPA1 and WPA2"
+    wpa2_only = "WPA2 only"
+    wpa3_transition = "WPA3 Transition Mode"
+    wpa3_only = "WPA3 only"
+
+
 class MRSSIDIPAssignmentMode(str, Enum):
     """
     IP assignment mode on an MR SSID

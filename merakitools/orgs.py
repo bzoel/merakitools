@@ -62,11 +62,127 @@ def list(name: Optional[str] = None, include_counts: bool = False):
 
 
 @app.command()
+def create(
+    name: str,
+    org_admin: Optional[List[str]] = typer.Option(
+        None, help="Org admins in Name!Email format"
+    ),
+    claim_order: Optional[List[str]] = typer.Option(None),
+):
+    """
+    Create a new Meraki organization
+    """
+    # Create organization
+    try:
+        org = dashboard.organizations.createOrganization(name=name)
+        console.print(
+            f"Created new organization [bold]{org['name']}[/bold]. ID: {org['id']}"
+        )
+    except APIError as err:
+        console.print(f"Unable to create organization. {err.message}")
+        raise typer.Abort()
+
+    # Create org_admins if specified
+    if org_admin:
+        for admin in org_admin:
+            name, email = admin.split("!")
+            try:
+                admin = dashboard.organizations.createOrganizationAdmin(
+                    organizationId=org["id"], name=name, email=email, orgAccess="full"
+                )
+                console.print(f"Created new admin {email}.")
+            except APIError as err:
+                console.print(f"Unable to create admin {email}. {err.message}")
+                raise typer.Abort()
+
+    # Claim orders if specified
+    if claim_order:
+        try:
+            claim = dashboard.organizations.claimIntoOrganization(
+                organizationId=org["id"], orders=claim_order
+            )
+            console.print(f"Claimed orders: {', '.join(claim_order)}")
+        except APIError as err:
+            console.print(f"Unable to claim order(s). {err.message}")
+
+
+@app.command()
+def saml(
+    organization_name: str, enable: bool = typer.Option(None, "--enable/--disable")
+):
+    """
+    Organization SAML status
+    """
+    # Get organization and print current status
+    org = find_org_by_name(organization_name)
+    saml_status = dashboard.organizations.getOrganizationSaml(organizationId=org["id"])[
+        "enabled"
+    ]
+    console.print(
+        f"SAML for [bold]{org['name']}[/bold] is currently [bold]{'enabled' if saml_status else 'disabled'}."
+    )
+
+    if enable is not None:
+        if saml_status == enable:
+            # No change is requried
+            console.print(
+                f" No change. SAML is already [bold]{'enabled' if saml_status else 'disabled'}."
+            )
+        else:
+            # Change API status
+            with console.status("Accessing API..", spinner="material"):
+                saml_status = dashboard.organizations.updateOrganizationSaml(
+                    organizationId=org["id"], enabled=enable
+                )["enabled"]
+            console.print(
+                f" API is now [bold]{'enabled' if saml_status else 'disabled'}"
+            )
+
+    return saml_status
+
+
+@app.command()
+def create_saml_idp(organization_name: str, saml_x509_cert: str, saml_slo_logout: str):
+    """
+    Create a SAML IDP
+    """
+    # Find organization
+    org = find_org_by_name(organization_name)
+
+    # Create SAML IDP
+    saml_idp = dashboard.organizations.createOrganizationSamlIdp(
+        organizationId=org["id"],
+        x509certSha1Fingerprint=saml_x509_cert,
+        sloLogoutUrl=saml_slo_logout,
+    )
+    console.print(
+        f"Created SAML IDP. Consumer URL is [bold]{saml_idp['consumerUrl']}[/bold]"
+    )
+    return saml_idp
+
+
+@app.command()
+def create_saml_role(
+    organization_name: str,
+    role: str,
+    access: str = "full",
+):
+    """
+    Create a SAML role
+    """
+    org = find_org_by_name(organization_name)
+    new_role = dashboard.organizations.createOrganizationSamlRole(
+        organizationId=org["id"], role=role, orgAccess=access
+    )
+    console.print(f"Created SAML role {new_role['role']}")
+
+
+@app.command()
 def api(
     organization_name: str, enable: bool = typer.Option(None, "--enable/--disable")
 ):
     """
-    Enable or disable Meraki API
+    Organization API status
     """
     # Get organization and print current API status
     org = find_org_by_name(organization_name)

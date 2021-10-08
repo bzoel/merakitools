@@ -66,7 +66,7 @@ def update_settings(
     ),
 ):
     """
-    Update a network
+    Update network settings
     """
     net = find_network_by_name(organization_name, network_name)
     with console.status("Getting current settings..", spinner="material"):

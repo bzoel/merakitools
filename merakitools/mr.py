@@ -341,7 +341,7 @@ def update_ssid(
     network_name: str,
     ssid_number: int = typer.Argument(..., help="The SSID number", min=0, max=15),
     confirm: bool = typer.Option(
-        None, help="Confirm the current SSID name before applying changes"
+        True, help="Confirm the current SSID name before applying changes"
     ),
     enabled: Optional[bool] = typer.Option(
         None, help="Whether or not the SSID is enabled"
@@ -411,6 +411,11 @@ def update_ssid(
         if v is not None:
             if v is not ssid.get(k, None):
                 update[k] = v
+
+    # Do not call API if no changes were made
+    if not update:
+        console.print(f"[bold green]No settings changed.")
+        raise typer.Exit()
 
     # Update SSID
     ssid = dashboard.wireless.updateNetworkWirelessSsid(

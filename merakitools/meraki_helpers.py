@@ -36,13 +36,15 @@ def find_org_by_name(org_name: str):
                 # Get org by ID
                 org = dashboard.organizations.getOrganization(organizationId=org_name)
             except APIError as err:
-                console.print(f"Organization ID [bold]{org_name}[/bold] not accessible.")
+                console.print(
+                    f"Organization ID [bold]{org_name}[/bold] not accessible."
+                )
                 raise typer.Abort()
         else:
             try:
                 # Get list of accessible orgs and search by name
                 orgs = dashboard.organizations.getOrganizations()
-                org = next(org for org in orgs if org['name'] == org_name)
+                org = next(org for org in orgs if org["name"] == org_name)
             except APIError as err:
                 console.print(f"{err.message}")
                 raise typer.Abort()

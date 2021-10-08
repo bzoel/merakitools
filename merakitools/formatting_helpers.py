@@ -4,23 +4,26 @@ Billy Zoellers
 
 CLI tools for managing Meraki networks based on Typer
 """
-from rich.table import Table
+from typing import List, Optional
+from rich.table import Table, Column
+from rich import box
 
 
-def table_with_columns(columns, title=None, first_column_name=None, style=None):
+def table_with_columns(
+    columns: List, title: Optional[str] = None, first_column_name: Optional[str] = None
+) -> Table:
     """
     Generate a table with specified columns
     """
-    table = Table(title=title, style=style)
+    table = Table(*columns, title=title, expand=False, box=box.ROUNDED)
     if first_column_name:
-        table.add_column(first_column_name, style="bold blue")
-    for col in columns:
-        table.add_column(col)
+        first_column = Column(first_column_name, style="bold blue")
+        table.columns.insert(0, first_column)
 
     return table
 
 
-def table_mx_onetoone_nat(rules, title="NAT Entries", style=None):
+def table_mx_onetoone_nat(rules: List, title: str = "NAT Entries") -> Table:
     """
     Generate a table to display MX one to one NAT entries
     """
@@ -28,7 +31,6 @@ def table_mx_onetoone_nat(rules, title="NAT Entries", style=None):
         ["External IP", "Internal IP", "Uplink", "Protocol", "Ports", "Allowed IPs"],
         title=title,
         first_column_name="Name",
-        style=style,
     )
     for rule in rules:
         table.add_row(

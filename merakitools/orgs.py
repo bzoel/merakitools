@@ -21,16 +21,18 @@ def list(name: Optional[str] = None, include_counts: bool = False):
     List Meraki organizations
     """
     orgs = find_orgs_by_name(name)
-    console.print(f"[bold]Found {len(orgs)} organizations")
+    console.print(f"Found [bold]{len(orgs)} organizations")
 
     if not orgs:
         raise typer.Abort()
 
-    table = table_with_columns(
-        ["Name", "ID", "API", "Networks", "Devices"], title="Organizations"
-    )
+    # Create a table of organizations
+    columns = ["Name", "ID", "API"]
+    if include_counts:
+        columns.extend(["Networks", "Devices"])
+    table = table_with_columns(columns, title="Organizations")
 
-    with console.status("Accessing API..."):
+    with console.status("Gathering network and device counts..", spinner="material"):
         for org in orgs:
             networks = devices = None
             if include_counts and org["api"]["enabled"]:
@@ -41,13 +43,20 @@ def list(name: Optional[str] = None, include_counts: bool = False):
                     devices = dashboard.organizations.getOrganizationDevices(org["id"])
                 except APIError:
                     console.print(f"Unable to access {org['name']}")
-            table.add_row(
+
+            row = [
                 org["name"],
                 org["id"],
                 "[green]Enabled" if org["api"]["enabled"] else "[red]Disabled",
-                str(len(networks)) if networks else "",
-                str(len(devices)) if devices else "",
-            )
+            ]
+            if include_counts:
+                row.extend(
+                    [
+                        str(len(networks)) if networks else "",
+                        str(len(devices)) if devices else "",
+                    ]
+                )
+            table.add_row(*row)
 
     console.print(table)
 

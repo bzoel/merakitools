@@ -5,20 +5,20 @@ Billy Zoellers
 CLI tools for managing Meraki networks based on Typer
 """
 import os
+from typing import Optional, List
 from meraki.exceptions import APIError
 import requests
 import typer
 from merakitools.console import console
 from merakitools.dashboardapi import dashboard
-from typer import Abort
 from rich.prompt import Confirm
 
 
-def find_orgs_by_name(org_name: str):
+def find_orgs_by_name(org_name: Optional[str]) -> List:
     """
     Given a name, find any matching organizations
     """
-    with console.status("Accessing API..."):
+    with console.status("Finding Organizations..", spinner="material"):
         orgs = dashboard.organizations.getOrganizations()
     if org_name:
         orgs = [org for org in orgs if org_name in org["name"]]
@@ -27,25 +27,31 @@ def find_orgs_by_name(org_name: str):
 
 def find_org_by_name(org_name: str):
     """
-    Given a name, find a single matching organization by prompting the user
+    Accepts an organization name or ID, and return the Meraki organization
     """
-    orgs = find_orgs_by_name(org_name)
+    with console.status("Finding organization..", spinner="material"):
+        # Use numeric values as Org IDs
+        if org_name.isnumeric():
+            try:
+                # Get org by ID
+                org = dashboard.organizations.getOrganization(organizationId=org_name)
+            except APIError as err:
+                console.print(f"Organization ID [bold]{org_name}[/bold] not accessible.")
+                raise typer.Abort()
+        else:
+            try:
+                # Get list of accessible orgs and search by name
+                orgs = dashboard.organizations.getOrganizations()
+                org = next(org for org in orgs if org['name'] == org_name)
+            except APIError as err:
+                console.print(f"{err.message}")
+                raise typer.Abort()
+            except StopIteration:
+                console.print(f"Organization named [bold]{org_name}[/bold] not found.")
+                raise typer.Abort()
 
-    if len(orgs) == 1:
-        return orgs[0]
-
-    if len(orgs) > 1:
-        console.print(f"Found {len(orgs)} orgs matching [bold]{org_name}[/bold]...")
-        for org in orgs:
-            found = Confirm.ask(
-                f" Did you mean [bold]{org['name']}[/bold], with ID {org['id']}?",
-                console=console,
-            )
-            if found:
-                return org
-
-    print("No orgs found.")
-    raise Abort()
+    console.print(f"Organization: [bold]{org['name']}")
+    return org
 
 
 def find_org_id_by_device_serial(serial: str):
@@ -68,14 +74,17 @@ def find_network_by_name(org_name: str, net_name: str):
     Find a network given an orgaization name and network name
     """
     org = find_org_by_name(org_name)
-    with console.status("Accessing API..."):
+    with console.status("Finding network..", spinner="material"):
         nets = dashboard.organizations.getOrganizationNetworks(org["id"])
 
     try:
-        return next(net for net in nets if net["name"] == net_name)
+        net = next(net for net in nets if net["name"] == net_name)
     except StopIteration:
         print("Network not found.")
-        raise Abort()
+        raise typer.Abort()
+
+    console.print(f"Network: [bold]{net['name']}")
+    return net
 
 
 def api_req(resource: str, method: str = "GET", **kwargs):

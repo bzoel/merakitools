@@ -148,3 +148,78 @@ def traffic_analysis(
         console.print(
             f"[bold green]Traffic analysis mode for '{net['name']}' changed to {set_mode}"
         )
+
+
+@app.command()
+def list_webhook_servers(
+    organization_name: str,
+    network_name: str,
+):
+    """
+    List webhook servers for a network
+    """
+    # Get a list of the current webhook servers
+    net = find_network_by_name(organization_name, network_name)
+    with console.status("Getting current settings..", spinner="material"):
+        http_servers = dashboard.networks.getNetworkWebhooksHttpServers(
+            networkId=net["id"]
+        )
+
+    # Output to table
+    table = table_with_columns(
+        ["URL"], first_column_name="Name", title=f"Webhook Servers for {net['name']}"
+    )
+    for server in http_servers:
+        table.add_row(server["name"], server["url"])
+    console.print(table)
+
+
+@app.command()
+def new_webhook_server(
+    organization_name: str,
+    network_name: str,
+    name: str = typer.Option(..., help="A name for easy reference"),
+    shared_secret: str = typer.Option(
+        None, help="A shared secret included in POSTs send to the HTTP server"
+    ),
+    url: str = typer.Option(
+        ..., help="The URL of the HTTP server. Cannot be updated later."
+    ),
+):
+    """
+    Create a new webhook server for a network
+    """
+    # Get a list of the current webhook servers
+    net = find_network_by_name(organization_name, network_name)
+    with console.status("Getting current webhook servers..", spinner="material"):
+        http_servers = dashboard.networks.getNetworkWebhooksHttpServers(
+            networkId=net["id"]
+        )
+
+    # Validate inputs
+    duplicate_name = duplicate_url = None
+    for server in http_servers:
+        if server["name"] == name:
+            duplicate_name = server
+            break
+        if server["url"] == url:
+            duplicate_url = server
+    if duplicate_name:
+        console.print(f"[red]A webhook server named {name} already exists!")
+        raise typer.Abort()
+    if duplicate_url:
+        console.print(
+            f"[red]A webhook server named {duplicate_url['name']} already exists with this URL!"
+        )
+        raise typer.Abort()
+
+    # Create new webhook server
+    new_server = dashboard.networks.createNetworkWebhooksHttpServer(
+        networkId=net["id"],
+        name=name,
+        url=url,
+        sharedSecret=shared_secret if shared_secret else "",
+    )
+    console.print(
+        f"[bold green]New webhook server named '{new_server['name']}' created."
+    )

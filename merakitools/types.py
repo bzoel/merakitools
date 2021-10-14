@@ -126,3 +126,13 @@ class MRSSIDIPAssignmentMode(str, Enum):
     l3_roaming = "Layer 3 roaming"
     l3_roaming_concentrator = "Layer 3 roaming with a concentrator"
     vpn = "VPN"
+
+
+class NetworkTrafficAnalysisMode(str, Enum):
+    """
+    Traffic Analysis mode for a network
+    """
+
+    disabled = "disabled"
+    basic = "basic"
+    detailed = "detailed"

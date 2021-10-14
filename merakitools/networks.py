@@ -15,7 +15,7 @@ from merakitools.meraki_helpers import (
     find_network_by_name,
 )
 from merakitools.formatting_helpers import table_with_columns
-from merakitools.types import ProductType
+from merakitools.types import ProductType, NetworkTrafficAnalysisMode
 from rich import inspect
 
 app = typer.Typer()
@@ -101,3 +101,50 @@ def update_settings(
         )
     console.print(f"[bold green]Settings for'{net['name']}' have been updated.")
     console.print(f" The following parameters were updated: {', '.join(update)}")
+
+
+@app.command()
+def traffic_analysis(
+    organization_name: str,
+    network_name: str,
+    confirm: bool = typer.Option(
+        True, help="Confirm the network name before applying changes"
+    ),
+    set_mode: NetworkTrafficAnalysisMode = typer.Option(
+        None, help="Traffic analysis mode for network"
+    ),
+):
+    """
+    Get or update the traffic analysis mode for a network
+    """
+    net = find_network_by_name(organization_name, network_name)
+    with console.status("Getting current settings..", spinner="material"):
+        traffic_analysis = dashboard.networks.getNetworkTrafficAnalysis(
+            networkId=net["id"]
+        )
+
+    # Print current mode
+    console.print(f"Current Traffic analysis mode: [bold]{traffic_analysis['mode']}")
+
+    # Update mode if requested
+    if set_mode is not None:
+        # Confirm network name with user before continuing
+        if confirm:
+            confirmed = Confirm.ask("Do you want to continue?", console=console)
+            if not confirmed:
+                raise typer.Abort()
+
+        # Make change only if required
+        if set_mode.lower() == traffic_analysis["mode"].lower():
+            console.print(f"[bold green]No settings changed.")
+            raise typer.Abort()
+
+        # Update settings
+        with console.status("Updating settings..", spinner="material"):
+            settings = dashboard.networks.updateNetworkTrafficAnalysis(
+                networkId=net["id"],
+                mode=set_mode,
+            )
+        console.print(
+            f"[bold green]Traffic analysis mode for '{net['name']}' changed to {set_mode}"
+        )

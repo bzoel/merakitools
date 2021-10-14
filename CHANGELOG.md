@@ -1,4 +1,7 @@
 # merakitools - CHANGELOG
+### v0.1.7
+ - [new] Update network traffic analysis settings
+
 ### v0.1.6
  - [new] Update network settings
  - [new] Create organization, claim orders, and add admins

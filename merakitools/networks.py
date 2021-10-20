@@ -13,10 +13,12 @@ from merakitools.meraki_helpers import (
     find_orgs_by_name,
     find_org_by_name,
     find_network_by_name,
+    api_req,
 )
 from merakitools.formatting_helpers import table_with_columns
 from merakitools.types import ProductType, NetworkTrafficAnalysisMode
 from rich import inspect
+from pathlib import Path
 
 app = typer.Typer()
 
@@ -223,3 +225,103 @@ def new_webhook_server(
     console.print(
         f"[bold green]New webhook server named '{new_server['name']}' created."
     )
+
+
+@app.command()
+def list_payload_templates(
+    organization_name: str,
+    network_name: str,
+):
+    """
+    List webhook payload templates for a network
+    """
+    net = find_network_by_name(organization_name, network_name)
+    with console.status("Getting templates..", spinner="material"):
+        templates = api_req(f"networks/{net['id']}/webhooks/payloadTemplates")
+
+    # Output to table
+    table = table_with_columns(
+        ["Type", "ID"],
+        first_column_name="Name",
+        title=f"Payload templates for {net['name']}",
+    )
+    for template in templates:
+        table.add_row(
+            template["name"],
+            template["type"],
+            template["payloadTemplateId"],
+        )
+    console.print(table)
+
+
+@app.command()
+def new_payload_template(
+    organization_name: str,
+    network_name: str,
+    name: str = typer.Option(..., help="A name for the payload template"),
+    headers: typer.FileBinaryRead = typer.Option(
+        ..., help="A file with the headers template"
+    ),
+    body: typer.FileBinaryRead = typer.Option(
+        ..., help="A file with the body template"
+    ),
+):
+    """
+    Create a webhook payload template
+    """
+    net = find_network_by_name(organization_name, network_name)
+
+    with console.status(f"Creating template [bold]{name}.."):
+
+        data = {"name": name}
+        files = {
+            "headersFile": headers,
+            "bodyFile": body,
+        }
+
+        template = api_req(
+            f"networks/{net['id']}/webhooks/payloadTemplates",
+            method="POST",
+            data=data,
+            files=files,
+        )
+
+    console.print(
+        f"[green]Created new template named [bold]{template['name']}[/bold] with ID {template['payloadTemplateId']}."
+    )
+
+
+@app.command()
+def delete_payload_template(
+    organization_name: str,
+    network_name: str,
+    name: str = typer.Option(..., help="Name of the payload template"),
+    confirm: bool = typer.Option(True, help="Confirm before deleting"),
+):
+    """
+    Delete a webhook payload template
+    """
+    # Get a list of payload templates for the network
+    net = find_network_by_name(organization_name, network_name)
+    with console.status("Getting templates..", spinner="material"):
+        templates = api_req(f"networks/{net['id']}/webhooks/payloadTemplates")
+
+    # Search by name
+    try:
+        found = next(t for t in templates if t["name"] == name)
+    except StopIteration:
+        console.print(f"[red]Payload template named [bold]{name}[/bold] not found.")
+        raise typer.Abort()
+    console.print(f"Found template named [bold]{found['name']}")
+
+    # Confirm with user
+    if confirm:
+        confirmed = Confirm.ask("Do you want to delete?", console=console)
+        if not confirmed:
+            raise typer.Abort()
+
+    api_req(
+        f"networks/{net['id']}/webhooks/payloadTemplates/{found['payloadTemplateId']}",
+        method="DELETE",
+    )
+    console.print(f"[green]Deleted payload template [bold]{name}")

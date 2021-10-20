@@ -2,6 +2,7 @@
 ### v0.1.7
  - [new] Update network traffic analysis settings
  - [new] List and create network webhook servers
+ - [new] List, create, delete network webhook payload templates
 
 ### v0.1.6
  - [new] Update network settings

@@ -87,6 +87,9 @@ def add_staticroute(
                     subnet=format(route_subnet),
                     gatewayIp=format(route_nexthop),
                 )
+                console.print(
+                    f"Created new route [bold]{route_name}[/bold] with subnet {route_subnet}"
+                )
             except APIError as err:
                 console.print(f"Failed to create route [bold]{route_name}[/bold]:")
                 for e in err.message["errors"]:
@@ -205,7 +208,7 @@ def create_staticnat(
         )
 
     # Display a table of new rules
-    table = table_mx_onetoone_nat(new_rules, title="New 1:1 NAT Rules", style="green")
+    table = table_mx_onetoone_nat(new_rules, title="New 1:1 NAT Rules")
     console.print(table)
 
     # Confirm before adding changes

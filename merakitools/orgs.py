@@ -8,7 +8,12 @@ from typing import List, Optional
 import typer
 from merakitools.console import console
 from merakitools.dashboardapi import dashboard, APIError
-from merakitools.meraki_helpers import find_org_by_name, find_orgs_by_name, api_req
+from merakitools.meraki_helpers import (
+    find_network_by_name,
+    find_org_by_name,
+    find_orgs_by_name,
+    api_req,
+)
 from merakitools.formatting_helpers import table_with_columns
 from rich import inspect
 
@@ -175,6 +180,60 @@ def create_saml_role(
         organizationId=org["id"], role=role, orgAccess=access
     )
     console.print(f"Created SAML role {new_role['role']}")
+
+
+@app.command()
+def claim_order(
+    organization_name: str,
+    order_number: Optional[List[str]] = typer.Option(...),
+    claim_to_network_name: Optional[str] = typer.Option(None),
+):
+    """
+    Claim an order into an organization
+    """
+    # Find organization or network
+    if claim_to_network_name is None:
+        org = find_org_by_name(org_name=organization_name)
+        org_id = org["id"]
+    else:
+        net = find_network_by_name(
+            org_name=organization_name, net_name=claim_to_network_name
+        )
+        org_id = net["organizationId"]
+
+    # Attempt to claim order
+    try:
+        claim = dashboard.organizations.claimIntoOrganization(
+            organizationId=org["id"], orders=order_number
+        )
+    except APIError as err:
+        console.print(f"Unable to claim order(s). {err.message}")
+        raise typer.Abort()
+
+    console.print(f"Claimed orders: {', '.join(claim['orders'])}")
+
+    # Find serials contained in this order number
+    inventory = dashboard.organizations.getOrganizationInventoryDevices(
+        organizationId=org_id
+    )
+    serials = []
+    for device in inventory:
+        if device["orderNumber"] in order_number:
+            console.print(f" {device['model']} {device['serial']}")
+
+            # Create a list of serials
+            if claim_to_network_name is not None:
+                if device["networkId"] is None:
+                    serials.append(device["serial"])
+
+    # Claim devices into networks if requested
+    if claim_to_network_name is not None:
+        add = dashboard.networks.claimNetworkDevices(
+            networkId=net["id"], serials=serials
+        )
+        console.print(
+            f"[green]{len(serials)} devices were added to [bold]{net['name']}"
+        )
 
 
 @app.command()

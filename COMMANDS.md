@@ -39,6 +39,7 @@ $ merakitools devices [OPTIONS] COMMAND [ARGS]...
 
 * `blink-led`: Blink the LEDs of device(s)
 * `list`: List Meraki devices
+* `ping`: Ping a Meraki device
 * `reboot`: Reboot device(s)
 * `show-lldp`: Show CDP/LLDP information for Meraki...
 * `update`: Update parameters of a Meraki device
@@ -79,6 +80,26 @@ $ merakitools devices list [OPTIONS] ORGANIZATION_NAME NETWORK_NAME
 * `--type [MX|MR|MS|MV|MT|Z]`
 * `--sort-by [name|model]`: [default: model]
 * `--sort-reverse / --no-sort-reverse`: [default: False]
+* `--help`: Show this message and exit.
+
+### `merakitools devices ping`
+
+Ping a Meraki device
+
+**Usage**:
+
+```console
+$ merakitools devices ping [OPTIONS] SERIAL
+```
+
+**Arguments**:
+
+* `SERIAL`: [required]
+
+**Options**:
+
+* `--target TEXT`: Specify a target IP or FQDN
+* `--count INTEGER RANGE`: Number of pings  [default: 5]
 * `--help`: Show this message and exit.
 
 ### `merakitools devices reboot`
@@ -152,12 +173,54 @@ $ merakitools mr [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
+* `list-l3-fw`: List layer 3 firewall rules for an SSID
+* `list-l7-fw`: List layer 7 firewall rules for an SSID
 * `list-mesh`: List mesh status for a network
 * `list-rf`: List RF settings for a network
 * `list-rf-profiles`: List RF profiles for a network
 * `list-ssid`: List configured SSIDs for a network
 * `show-ssid`: Show an SSID for a network TODO: formatting
 * `update-ssid`: Update an SSID for a network
+
+### `merakitools mr list-l3-fw`
+
+List layer 3 firewall rules for an SSID
+
+**Usage**:
+
+```console
+$ merakitools mr list-l3-fw [OPTIONS] ORGANIZATION_NAME NETWORK_NAME SSID_NUMBER
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+* `NETWORK_NAME`: [required]
+* `SSID_NUMBER`: The SSID number  [required]
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+### `merakitools mr list-l7-fw`
+
+List layer 7 firewall rules for an SSID
+
+**Usage**:
+
+```console
+$ merakitools mr list-l7-fw [OPTIONS] ORGANIZATION_NAME NETWORK_NAME SSID_NUMBER
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+* `NETWORK_NAME`: [required]
+* `SSID_NUMBER`: The SSID number  [required]
+
+**Options**:
+
+* `--help`: Show this message and exit.
 
 ### `merakitools mr list-mesh`
 
@@ -288,6 +351,7 @@ $ merakitools mr update-ssid [OPTIONS] ORGANIZATION_NAME NETWORK_NAME SSID_NUMBE
 * `--pre-shared-key TEXT`: The passkey for the SSID
 * `--min-bitrate INTEGER RANGE`: The minimum bitrate in Mbps
 * `--ip-assignment-mode [NAT mode|Bridge mode|Layer 3 roaming|Layer 3 roaming with a concentrator|VPN]`: The client IP assignment mode
+* `--local-lan-access [allow|deny]`: Policy for wireless clients accessing the Local LAN
 * `--help`: Show this message and exit.
 
 ## `merakitools ms`
@@ -488,8 +552,35 @@ $ merakitools networks [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
+* `delete-payload-template`: Delete a webhook payload template
 * `list`: List Meraki networks in an organization
-* `update-settings`: Update a network
+* `list-payload-templates`: List webhook payload templates for a network
+* `list-webhook-servers`: List webhook servers for a network
+* `new-payload-template`: Create a webhook payload template
+* `new-webhook-server`: Create a new webhook server for a network
+* `traffic-analysis`: Get or update the traffic analysis mode for a...
+* `update-settings`: Update network settings
+
+### `merakitools networks delete-payload-template`
+
+Delete a webhook payload template
+
+**Usage**:
+
+```console
+$ merakitools networks delete-payload-template [OPTIONS] ORGANIZATION_NAME NETWORK_NAME
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+* `NETWORK_NAME`: [required]
+
+**Options**:
+
+* `--name TEXT`: Name of the payload template  [required]
+* `--confirm / --no-confirm`: Confirm before deleting  [default: True]
+* `--help`: Show this message and exit.
 
 ### `merakitools networks list`
 
@@ -510,9 +601,112 @@ $ merakitools networks list [OPTIONS] ORGANIZATION_NAME
 * `--product-type [appliance|switch|wireless|camera|systemsManager|enviornmental|sensor|cellularGateway]`
 * `--help`: Show this message and exit.
 
+### `merakitools networks list-payload-templates`
+
+List webhook payload templates for a network
+
+**Usage**:
+
+```console
+$ merakitools networks list-payload-templates [OPTIONS] ORGANIZATION_NAME NETWORK_NAME
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+* `NETWORK_NAME`: [required]
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+### `merakitools networks list-webhook-servers`
+
+List webhook servers for a network
+
+**Usage**:
+
+```console
+$ merakitools networks list-webhook-servers [OPTIONS] ORGANIZATION_NAME NETWORK_NAME
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+* `NETWORK_NAME`: [required]
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+### `merakitools networks new-payload-template`
+
+Create a webhook payload template
+
+**Usage**:
+
+```console
+$ merakitools networks new-payload-template [OPTIONS] ORGANIZATION_NAME NETWORK_NAME
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+* `NETWORK_NAME`: [required]
+
+**Options**:
+
+* `--name TEXT`: A name for the payload template  [required]
+* `--headers FILENAME`: A file with the headers template  [required]
+* `--body FILENAME`: A file with the body template  [required]
+* `--help`: Show this message and exit.
+
+### `merakitools networks new-webhook-server`
+
+Create a new webhook server for a network
+
+**Usage**:
+
+```console
+$ merakitools networks new-webhook-server [OPTIONS] ORGANIZATION_NAME NETWORK_NAME
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+* `NETWORK_NAME`: [required]
+
+**Options**:
+
+* `--name TEXT`: A name for easy reference  [required]
+* `--shared-secret TEXT`: A shared secret included in POSTs send to the HTTP server
+* `--url TEXT`: The URL of the HTTP server. Cannot be updated later.  [required]
+* `--help`: Show this message and exit.
+
+### `merakitools networks traffic-analysis`
+
+Get or update the traffic analysis mode for a network
+
+**Usage**:
+
+```console
+$ merakitools networks traffic-analysis [OPTIONS] ORGANIZATION_NAME NETWORK_NAME
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+* `NETWORK_NAME`: [required]
+
+**Options**:
+
+* `--confirm / --no-confirm`: Confirm the network name before applying changes  [default: True]
+* `--set-mode [disabled|basic|detailed]`: Traffic analysis mode for network
+* `--help`: Show this message and exit.
+
 ### `merakitools networks update-settings`
 
-Update a network
+Update network settings
 
 **Usage**:
 
@@ -549,6 +743,7 @@ $ merakitools orgs [OPTIONS] COMMAND [ARGS]...
 **Commands**:
 
 * `api`: Organization API status
+* `claim-order`: Claim an order into an organization
 * `create`: Create a new Meraki organization
 * `create-ip-objects`: Create new IP objects within organization,...
 * `create-saml-idp`: Create a SAML IDP
@@ -574,6 +769,26 @@ $ merakitools orgs api [OPTIONS] ORGANIZATION_NAME
 **Options**:
 
 * `--enable / --disable`
+* `--help`: Show this message and exit.
+
+### `merakitools orgs claim-order`
+
+Claim an order into an organization
+
+**Usage**:
+
+```console
+$ merakitools orgs claim-order [OPTIONS] ORGANIZATION_NAME
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+
+**Options**:
+
+* `--order-number TEXT`: [required]
+* `--claim-to-network-name TEXT`
 * `--help`: Show this message and exit.
 
 ### `merakitools orgs create`

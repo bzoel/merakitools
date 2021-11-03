@@ -13,7 +13,7 @@ from typer import params
 from merakitools.console import console
 from merakitools.dashboardapi import dashboard
 from merakitools.meraki_helpers import api_req, find_network_by_name, find_org_by_name
-from merakitools.formatting_helpers import table_with_columns
+from merakitools.formatting_helpers import table_with_columns, camel_case_split
 from merakitools.types import (
     DeviceModel,
     MRSSIDIPAssignmentMode,
@@ -423,3 +423,80 @@ def update_ssid(
     )
     console.print(f"[bold green]SSID '{ssid['name']}' has been updated.")
     console.print(f" The following parameters were updated: {', '.join(update)}")
+
+
+@app.command()
+def list_l3_fw(
+    organization_name: str,
+    network_name: str,
+    ssid_number: int = typer.Argument(..., help="The SSID number", min=0, max=15),
+):
+    """
+    List layer 3 firewall rules for an SSID
+    """
+    net = find_network_by_name(organization_name, network_name)
+    # Get SSID details and rules
+    with console.status("Accessing API..."):
+        ssid = dashboard.wireless.getNetworkWirelessSsid(
+            networkId=net["id"],
+            number=ssid_number,
+        )
+        rules = dashboard.wireless.getNetworkWirelessSsidFirewallL3FirewallRules(
+            networkId=net["id"],
+            number=ssid_number,
+        )["rules"]
+
+    # Print SSID name and rules in table
+    console.print(f"SSID: [bold]{ssid['name']}")
+    table = table_with_columns(
+        ["Policy", "Protocol", "Dest IP", "Dest Port", "Comment"],
+        title=f"L3 rules for SSID: [bold]{ssid['name']}",
+    )
+    for rule in rules:
+        table.add_row(
+            rule["policy"],
+            rule["protocol"],
+            rule["destCidr"],
+            rule["destPort"],
+            rule["comment"],
+        )
+    console.print(table)
+
+
+@app.command()
+def list_l7_fw(
+    organization_name: str,
+    network_name: str,
+    ssid_number: int = typer.Argument(..., help="The SSID number", min=0, max=15),
+):
+    """
+    List layer 7 firewall rules for an SSID
+    """
+    net = find_network_by_name(organization_name, network_name)
+    # Get SSID details and rules
+    with console.status("Accessing API..."):
+        ssid = dashboard.wireless.getNetworkWirelessSsid(
+            networkId=net["id"],
+            number=ssid_number,
+        )
+        rules = dashboard.wireless.getNetworkWirelessSsidFirewallL7FirewallRules(
+            networkId=net["id"],
+            number=ssid_number,
+        )["rules"]
+
+    # Print SSID name and rules in table
+    console.print(f"SSID: [bold]{ssid['name']}")
+    if not rules:
+        console.print("No rules found.")
+        raise typer.Exit()
+
+    table = table_with_columns(
+        ["Policy", "Type", "Name"], title=f"L7 rules for SSID: [bold]{ssid['name']}"
+    )
+    for rule in rules:
+        table.add_row(
+            rule["policy"],
+            camel_case_split(rule["type"]),
+            rule["value"] if type(rule["value"]) is str else rule["value"]["name"],
+        )
+    console.print(table)

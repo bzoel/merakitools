@@ -7,6 +7,15 @@ CLI tools for managing Meraki networks based on Typer
 from typing import List, Optional
 from rich.table import Table, Column
 from rich import box
+import re
+
+
+def camel_case_split(str) -> str:
+    """
+    Input: applicationCategory
+    Output: Application Category
+    """
+    return re.sub(r"(\w)([A-Z])", r"\1 \2", str).capitalize()
 
 
 def table_with_columns(

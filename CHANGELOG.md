@@ -4,6 +4,7 @@
  - [new] List and create network webhook servers
  - [new] List, create, delete network webhook payload templates
  - [new] Claim an order and add devices to network
+ - [new] List MR L3/L7 firewall rules
 
 ### v0.1.6
  - [new] Update network settings

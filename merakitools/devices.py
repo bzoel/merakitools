@@ -5,14 +5,16 @@ Billy Zoellers
 CLI tools for managing Meraki networks based on Typer
 """
 from typing import List, Optional
+from time import sleep
 import typer
 from merakitools.console import console
 from merakitools.dashboardapi import dashboard
 from merakitools.meraki_helpers import api_req, find_network_by_name, find_org_by_name
 from merakitools.formatting_helpers import table_with_columns
 from merakitools.types import DeviceModel, DeviceSortOptions
-from rich import inspect
+from rich import inspect, box
 from rich.prompt import Confirm
+from rich.table import Table
 
 app = typer.Typer()
 
@@ -233,3 +235,52 @@ def blink_led(
         console.print(
             f"Blinking [bold]{sn}[/bold] LEDs for {blink['duration']} seconds"
         )
+
+
+@app.command()
+def ping(
+    serial: str,
+    target: str = typer.Option(None, help="Specify a target IP or FQDN"),
+    count: int = typer.Option(5, min=1, max=5, help="Number of pings"),
+):
+    """
+    Ping a Meraki device
+    """
+    # Use different endpoint and params if a target is specified
+    endpoint = f"devices/{serial}/liveTools/pingDevice"
+    params = {count: count}
+    if target is not None:
+        endpoint = f"devices/{serial}/liveTools/ping"
+        params["target"] = target
+
+    # Create a new ping task
+    with console.status("Pinging device..", spinner="material"):
+        ping = api_req(endpoint, method="POST", params=params)
+        while ping["status"] in ["new", "running"]:
+            ping = api_req(f"{endpoint}/{ping['pingId']}")
+            sleep(1)
+
+    # Use 'Meraki cloud' if no target is specified
+    if target is None:
+        target = "Meraki cloud"
+
+    # Emulate UNIX ping display with statistics
+    table = Table(
+        show_header=False,
+        box=box.HEAVY_EDGE,
+        title=f"Ping from Meraki device [bold]{serial}",
+    )
+    if "replies" in ping["results"].keys():
+        for reply in ping["results"]["replies"]:
+            table.add_row(
+                f"{reply['size']} bytes from {target}: icmp_seq={reply['sequenceId']} time={reply['latency']}"
+            )
+    table.add_row(f"\n--- {target} ping statistics ---")
+    table.add_row(
+        f"{ping['results']['sent']} packets transmitted, {ping['results']['received']} packets received, {ping['results']['loss']['percentage']}% packet loss"
+    )
+    if "latencies" in ping["results"].keys():
+        table.add_row(
+            f"round-trip min/avg/max = {ping['results']['latencies']['minimum']}/{ping['results']['latencies']['average']}/{ping['results']['latencies']['maximum']}"
+        )
+    console.print(table)

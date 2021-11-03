@@ -5,6 +5,7 @@
  - [new] List, create, delete network webhook payload templates
  - [new] Claim an order and add devices to network
  - [new] List MR L3/L7 firewall rules
+ - [new] Ping device or IP/FQDN using device livetools
 
  - [update] *mr update-ssid* command now includes *local LAN firewall*
 

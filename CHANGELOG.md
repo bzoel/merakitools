@@ -6,6 +6,8 @@
  - [new] Claim an order and add devices to network
  - [new] List MR L3/L7 firewall rules
 
+ - [update] *mr update-ssid* command now includes *local LAN firewall*
+
 ### v0.1.6
  - [new] Update network settings
  - [new] Create organization, claim orders, and add admins

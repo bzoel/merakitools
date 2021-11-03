@@ -44,6 +44,15 @@ class DeviceSortOptions(str, Enum):
     model = "model"
 
 
+class FirewallPolicyOption(str, Enum):
+    """
+    Firewall policy options
+    """
+
+    allow = "allow"
+    deny = "deny"
+
+
 class MXInternetUplinks(str, Enum):
     """
     Uplink types on an MX device

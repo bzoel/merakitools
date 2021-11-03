@@ -21,6 +21,7 @@ from merakitools.types import (
     MRSSIDAuthMode,
     MRSSIDEncryptionMode,
     MRSSIDWPAEncrytionMode,
+    FirewallPolicyOption,
 )
 from rich import inspect
 from rich.progress import Progress
@@ -369,6 +370,9 @@ def update_ssid(
     ip_assignment_mode: Optional[MRSSIDIPAssignmentMode] = typer.Option(
         None, help="The client IP assignment mode"
     ),
+    local_lan_access: Optional[FirewallPolicyOption] = typer.Option(
+        None, help="Policy for wireless clients accessing the Local LAN"
+    ),
 ):
     """
     Update an SSID for a network
@@ -377,6 +381,12 @@ def update_ssid(
     with console.status("Accessing API..."):
         ssid = dashboard.wireless.getNetworkWirelessSsid(
             networkId=net["id"], number=ssid_number
+        )
+        local_lan_rule = (
+            dashboard.wireless.getNetworkWirelessSsidFirewallL3FirewallRules(
+                networkId=net["id"],
+                number=ssid_number,
+            )["rules"][0]
         )
 
     # Confirm SSID name with user before continuing
@@ -388,7 +398,8 @@ def update_ssid(
         if not confirmed:
             raise typer.Abort()
 
-    update = {}
+    # Enumerate changed values for SSID
+    update_ssid = {}
     items = {
         "name": name,
         "enabled": enabled,
@@ -409,20 +420,41 @@ def update_ssid(
     }
     for k, v in items.items():
         if v is not None:
-            if v is not ssid.get(k, None):
-                update[k] = v
+            if v != ssid.get(k, None):
+                update_ssid[k] = v
+
+    # Enumerate changed value for Local LAN FW
+    update_lan_fw = {}
+    if local_lan_access is not None:
+        if local_lan_access.value != local_lan_rule.get("policy"):
+            update_lan_fw["allowLanAccess"] = (
+                True if local_lan_access.value == "allow" else False
+            )
 
     # Do not call API if no changes were made
-    if not update:
+    with console.status("Updating SSID..", spinner="material"):
+        changed = False
+        if update_ssid:
+            changed = True
+            ssid = dashboard.wireless.updateNetworkWirelessSsid(
+                networkId=net["id"], number=ssid_number, **update_ssid
+            )
+
+        if update_lan_fw:
+            changed = True
+            local_lan_rule = (
+                dashboard.wireless.updateNetworkWirelessSsidFirewallL3FirewallRules(
+                    networkId=net["id"], number=ssid_number, **update_lan_fw
+                )
+            )
+    if not changed:
         console.print(f"[bold green]No settings changed.")
         raise typer.Exit()
 
-    # Update SSID
-    ssid = dashboard.wireless.updateNetworkWirelessSsid(
-        networkId=net["id"], number=ssid_number, **update
-    )
     console.print(f"[bold green]SSID '{ssid['name']}' has been updated.")
-    console.print(f" The following parameters were updated: {', '.join(update)}")
+    console.print(
+        f" The following parameters were updated: {', '.join(update_ssid | update_lan_fw)}"
+    )
 
 
 @app.command()

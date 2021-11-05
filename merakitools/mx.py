@@ -4,6 +4,7 @@ Billy Zoellers
 
 CLI tools for managing Meraki networks based on Typer
 """
+from os import stat
 from typing import List, Optional
 import typer
 from merakitools.console import console, status_spinner
@@ -21,6 +22,43 @@ import ipaddress
 
 app = typer.Typer()
 
+@app.command()
+def list_vlans(
+    organization_name: str,
+    network_name: str,
+    include_dhcp: Optional[bool] = typer.Option(False, help="Include DHCP information for each subnet")
+):
+    # Find network and VLANs
+    net = find_network_by_name(organization_name, network_name)
+    with status_spinner("Getting VLANs"):
+        if dashboard.appliance.getNetworkApplianceVlansSettings(networkId=net["id"])["vlansEnabled"]:
+            vlans = dashboard.appliance.getNetworkApplianceVlans(networkId=net["id"])
+        else:
+            vlans = dashboard.appliance.getNetworkApplianceSingleLan(networkId=net["id"])
+
+    # Create a table, including extra columns if --include-dhcp is specified
+    columns = ["ID", "Subnet", "Appliance IP"]
+    if include_dhcp:
+        columns = columns + ["DHCP", "Details"]
+    table = table_with_columns(columns, first_column_name="Name")
+    for vlan in vlans:
+        cols = [
+            vlan["name"],
+            str(vlan["id"]),
+            vlan["subnet"],
+            vlan["applianceIp"],
+        ]
+        if include_dhcp:
+            dhcp_cols =  [vlan["dhcpHandling"]]
+            if "Relay" in vlan["dhcpHandling"]:
+                dhcp_cols.append(f"Relays: {', '.join(vlan['dhcpRelayServerIps'])}")
+            elif "DHCP server" in vlan["dhcpHandling"]:
+                dhcp_cols.append(f"Lease time: {vlan['dhcpLeaseTime']}")
+            else:
+                dhcp_cols.append("")
+            
+        table.add_row(*cols+dhcp_cols)
+    console.print(table)
 
 @app.command()
 def list_routes(

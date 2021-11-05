@@ -1,6 +1,7 @@
 # merakitools - CHANGELOG
 ### v0.1.8
  - [new] Display MX static routes
+ - [new] Display MX VLANs
 
  - [update] Use a standard status spinner across all commands
 

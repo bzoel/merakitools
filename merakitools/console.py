@@ -9,3 +9,10 @@ from rich.traceback import install
 
 console = Console()
 install(show_locals=True, console=console)
+
+
+def status_spinner(message: str):
+    """
+    Common spinner
+    """
+    return console.status(f"{message}..", spinner="material")

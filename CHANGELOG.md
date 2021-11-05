@@ -1,4 +1,9 @@
 # merakitools - CHANGELOG
+### v0.1.8
+ - [new] Display MX static routes
+
+ - [update] Use a standard status spinner across all commands
+
 ### v0.1.7
  - [new] Update network traffic analysis settings
  - [new] List and create network webhook servers

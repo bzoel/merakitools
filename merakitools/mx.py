@@ -6,7 +6,7 @@ CLI tools for managing Meraki networks based on Typer
 """
 from typing import List, Optional
 import typer
-from merakitools.console import console
+from merakitools.console import console, status_spinner
 from merakitools.dashboardapi import dashboard, APIError
 from merakitools.meraki_helpers import (
     find_network_by_name,
@@ -20,6 +20,65 @@ from rich import inspect
 import ipaddress
 
 app = typer.Typer()
+
+
+@app.command()
+def list_routes(
+    organization_name: str,
+    network_name: str,
+    name: Optional[str] = typer.Option(
+        None, help="Only show routes with a specific name"
+    ),
+    subnet: Optional[str] = typer.Option(
+        None, help="Only show routes with a specific subnet"
+    ),
+    gateway: Optional[str] = typer.Option(
+        None, help="Only show routes with a specific gateway"
+    ),
+):
+    """
+    List MX device routes
+    """
+    # Find network and get static routes
+    net = find_network_by_name(organization_name, network_name)
+    with status_spinner("Getting routes"):
+        routes = dashboard.appliance.getNetworkApplianceStaticRoutes(
+            networkId=net["id"]
+        )
+
+    # Print number of routes, exit if no routes
+    console.print(f"Found {len(routes)} total routes.")
+    if not routes:
+        raise typer.Abort()
+
+    # Generate table, filtering if needed
+    table = table_with_columns(
+        ["Subnet", "Gateway", "Enabled"], first_column_name="Name"
+    )
+    for route in routes:
+        # Filter by name
+        if name is not None:
+            if name not in route["name"]:
+                continue
+
+        # Filter by subnet
+        if subnet is not None:
+            if subnet not in route["subnet"]:
+                continue
+
+        # Filter by gateway
+        if gateway is not None:
+            if gateway not in route["gatewayIp"]:
+                continue
+
+        # Add to table
+        table.add_row(
+            route["name"],
+            route["subnet"],
+            route["gatewayIp"],
+            "[green]Enabled" if route["enabled"] else "[red]Disabled",
+        )
+    console.print(table)
 
 
 @app.command()

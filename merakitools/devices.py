@@ -7,7 +7,7 @@ CLI tools for managing Meraki networks based on Typer
 from typing import List, Optional
 from time import sleep
 import typer
-from merakitools.console import console
+from merakitools.console import console, status_spinner
 from merakitools.dashboardapi import dashboard
 from merakitools.meraki_helpers import find_network_by_name, find_org_by_name
 from merakitools.formatting_helpers import table_with_columns
@@ -246,7 +246,7 @@ def ping(
     """
     Ping a Meraki device
     """
-    with console.status("Pinging device..", spinner="material"):
+    with status_spinner("Pinging device"):
         # Create a new ping task
         params = {
             "serial": serial,

@@ -7,7 +7,7 @@ CLI tools for managing Meraki networks based on Typer
 from typing import List, Optional
 from rich.prompt import Confirm
 import typer
-from merakitools.console import console
+from merakitools.console import console, status_spinner
 from merakitools.dashboardapi import dashboard
 from merakitools.meraki_helpers import (
     find_orgs_by_name,
@@ -30,7 +30,7 @@ def list(organization_name: str, product_type: Optional[ProductType] = None):
     """
     # Find an organization and get associated networks
     org = find_org_by_name(organization_name)
-    with console.status("Accessing API..."):
+    with status_spinner("Getting networks"):
         networks = dashboard.organizations.getOrganizationNetworks(org["id"])
 
     # Filter based on input and sort alphabetically
@@ -71,7 +71,7 @@ def update_settings(
     Update network settings
     """
     net = find_network_by_name(organization_name, network_name)
-    with console.status("Getting current settings..", spinner="material"):
+    with status_spinner("Getting current settings"):
         settings = dashboard.networks.getNetworkSettings(networkId=net["id"])
 
     # Confirm SSID name with user before continuing
@@ -97,7 +97,7 @@ def update_settings(
         raise typer.Exit()
 
     # Update settings
-    with console.status("Updating settings..", spinner="material"):
+    with status_spinner("Updating settings"):
         settings = dashboard.networks.updateNetworkSettings(
             networkId=net["id"], **update
         )
@@ -120,7 +120,7 @@ def traffic_analysis(
     Get or update the traffic analysis mode for a network
     """
     net = find_network_by_name(organization_name, network_name)
-    with console.status("Getting current settings..", spinner="material"):
+    with status_spinner("Getting current settings"):
         traffic_analysis = dashboard.networks.getNetworkTrafficAnalysis(
             networkId=net["id"]
         )
@@ -142,7 +142,7 @@ def traffic_analysis(
             raise typer.Abort()
 
         # Update settings
-        with console.status("Updating settings..", spinner="material"):
+        with status_spinner("Updating settings"):
             settings = dashboard.networks.updateNetworkTrafficAnalysis(
                 networkId=net["id"],
                 mode=set_mode,
@@ -162,7 +162,7 @@ def list_webhook_servers(
     """
     # Get a list of the current webhook servers
     net = find_network_by_name(organization_name, network_name)
-    with console.status("Getting current settings..", spinner="material"):
+    with status_spinner("Getting current settings"):
         http_servers = dashboard.networks.getNetworkWebhooksHttpServers(
             networkId=net["id"]
         )
@@ -193,7 +193,7 @@ def new_webhook_server(
     """
     # Get a list of the current webhook servers
     net = find_network_by_name(organization_name, network_name)
-    with console.status("Getting current webhook servers..", spinner="material"):
+    with status_spinner("Getting current webhook servers"):
         http_servers = dashboard.networks.getNetworkWebhooksHttpServers(
             networkId=net["id"]
         )
@@ -236,7 +236,7 @@ def list_payload_templates(
     List webhook payload templates for a network
     """
     net = find_network_by_name(organization_name, network_name)
-    with console.status("Getting templates..", spinner="material"):
+    with status_spinner("Getting templates"):
         templates = api_req(f"networks/{net['id']}/webhooks/payloadTemplates")
 
     # Output to table
@@ -271,8 +271,7 @@ def new_payload_template(
     """
     net = find_network_by_name(organization_name, network_name)
 
-    with console.status(f"Creating template [bold]{name}.."):
-
+    with status_spinner(f"Creating template [bold]{name}"):
         data = {"name": name}
         files = {
             "headersFile": headers,
@@ -303,7 +302,7 @@ def delete_payload_template(
     """
     # Get a list of payload templates for the network
     net = find_network_by_name(organization_name, network_name)
-    with console.status("Getting templates..", spinner="material"):
+    with status_spinner("Getting templates"):
         templates = api_req(f"networks/{net['id']}/webhooks/payloadTemplates")
 
     # Search by name

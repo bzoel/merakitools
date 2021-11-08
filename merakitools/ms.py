@@ -9,7 +9,7 @@ from meraki import exceptions
 from meraki.exceptions import APIError
 import typer
 from typing import List, Optional
-from merakitools.console import console
+from merakitools.console import console, status_spinner
 from merakitools.dashboardapi import dashboard
 from merakitools.meraki_helpers import (
     find_network_by_name,
@@ -110,7 +110,7 @@ def update_switchport(
 
     # Use an action batch to execute in one run
     if actions:
-        with console.status("Waiting for API batch to complete..."):
+        with status_spinner("Waiting for API batch to complete"):
             action_batch = dashboard.organizations.createOrganizationActionBatch(
                 organizationId=org_id, actions=actions, confirmed=True
             )
@@ -139,7 +139,7 @@ def list_stacks(organization_name: str, network_name: str):
     """
     # Get a list of switch stacks for specified network
     net = find_network_by_name(organization_name, network_name)
-    with console.status("Accessing API..."):
+    with status_spinner("Getting switch stacks"):
         stacks = dashboard.switch.getNetworkSwitchStacks(networkId=net["id"])
 
     # Exit if no stacks are found
@@ -166,7 +166,7 @@ def list_routing_interfaces(
     List L3 routed interfaces on an MS switch or stack
     """
     net = find_network_by_name(organization_name, network_name)
-    with console.status("Accessing API..."):
+    with status_spinner("Getting routing interfaces"):
         try:
             routing_interfaces = dashboard.switch.getDeviceSwitchRoutingInterfaces(
                 serial=serial
@@ -202,7 +202,7 @@ def list_routing_interfaces(
 
         if include_dhcp:
             # Get DHCP info
-            with console.status("Accessing API..."):
+            with status_spinner("Getting DHCP settings"):
                 if stack:
                     dhcp = dashboard.switch.getNetworkSwitchStackRoutingInterfaceDhcp(
                         networkId=net["id"],
@@ -252,7 +252,7 @@ def diag_switchport_traffic(
     take some time to complete on larger networks **
     """
     net = find_network_by_name(organization_name, network_name)
-    with console.status("Accessing API..."):
+    with status_spinner("Getting network devices"):
         devices = dashboard.networks.getNetworkDevices(net["id"])
 
     console.print(

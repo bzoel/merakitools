@@ -6,7 +6,7 @@ CLI tools for managing Meraki networks based on Typer
 """
 from typing import List, Optional
 import typer
-from merakitools.console import console
+from merakitools.console import console, status_spinner
 from merakitools.dashboardapi import dashboard, APIError
 from merakitools.meraki_helpers import (
     find_network_by_name,
@@ -37,7 +37,7 @@ def list(name: Optional[str] = None, include_counts: bool = False):
         columns.extend(["Networks", "Devices"])
     table = table_with_columns(columns, title="Organizations")
 
-    with console.status("Gathering network and device counts..", spinner="material"):
+    with status_spinner("Gathering network and device counts"):
         for org in orgs:
             networks = devices = None
             if include_counts and org["api"]["enabled"]:
@@ -135,7 +135,7 @@ def saml(
             )
         else:
             # Change API status
-            with console.status("Accessing API..", spinner="material"):
+            with status_spinner("Updating organization"):
                 saml_status = dashboard.organizations.updateOrganizationSaml(
                     organizationId=org["id"], enabled=enable
                 )["enabled"]
@@ -262,7 +262,7 @@ def api(
         return api_status
 
     # Change API status
-    with console.status("Accessing API..."):
+    with status_spinner("Updating organization"):
         org = dashboard.organizations.updateOrganization(
             organizationId=org["id"], name=org["name"], api={"enabled": enable}
         )
@@ -333,7 +333,7 @@ def list_api_requests(organization_name: str):
     List API requests for organization
     """
     org = find_org_by_name(organization_name)
-    with console.status("Accessing API..."):
+    with status_spinner("Gathering API requests"):
         api_requests = dashboard.organizations.getOrganizationApiRequests(
             org["id"], total_pages="all", perPage=250
         )

@@ -5,6 +5,7 @@
 
  - [update] Use a standard status spinner across all commands
  - [update] Update *devices ping* to use Dashboard Python API
+ - [update] New status spinner style for all commands
 
 ### v0.1.7
  - [new] Update network traffic analysis settings

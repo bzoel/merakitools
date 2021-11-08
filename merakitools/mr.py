@@ -10,7 +10,7 @@ import typer
 from typing import List, Optional
 
 from typer import params
-from merakitools.console import console
+from merakitools.console import console, status_spinner
 from merakitools.dashboardapi import dashboard
 from merakitools.meraki_helpers import api_req, find_network_by_name, find_org_by_name
 from merakitools.formatting_helpers import table_with_columns, camel_case_split
@@ -96,7 +96,7 @@ def list_rf(organization_name: str, network_name: str):
     rf_profiles = {}
 
     # Get list of all wireless devices
-    with console.status("Accessing API..."):
+    with status_spinner("Getting devices"):
         # Get sorted list of MR devices
         devices = dashboard.networks.getNetworkDevices(net["id"])
         devices = [device for device in devices if DeviceModel.MR in device["model"]]
@@ -206,7 +206,7 @@ def list_rf_profiles(organization_name: str, network_name: str):
         raise typer.Abort()
 
     # Get RF profiles
-    with console.status("Accessing API..."):
+    with status_spinner("Getting RF profiles"):
         rf_profiles = dashboard.wireless.getNetworkWirelessRfProfiles(
             net["id"], includeTemplateProfiles=True
         )
@@ -276,7 +276,7 @@ def list_mesh(organization_name: str, network_name: str):
         raise typer.Abort()
 
     # Get network mesh status
-    with console.status("Accessing API..."):
+    with status_spinner("Getting mesh status"):
         try:
             mesh = dashboard.wireless.getNetworkWirelessMeshStatuses(net["id"])
         except APIError as err:
@@ -328,7 +328,7 @@ def show_ssid(
     TODO: formatting
     """
     net = find_network_by_name(organization_name, network_name)
-    with console.status("Accessing API..."):
+    with status_spinner("Getting SSID"):
         ssid = dashboard.wireless.getNetworkWirelessSsid(
             networkId=net["id"], number=ssid_number
         )
@@ -378,7 +378,7 @@ def update_ssid(
     Update an SSID for a network
     """
     net = find_network_by_name(organization_name, network_name)
-    with console.status("Accessing API..."):
+    with status_spinner("Getting SSIDs"):
         ssid = dashboard.wireless.getNetworkWirelessSsid(
             networkId=net["id"], number=ssid_number
         )
@@ -432,7 +432,7 @@ def update_ssid(
             )
 
     # Do not call API if no changes were made
-    with console.status("Updating SSID..", spinner="material"):
+    with status_spinner("Updating SSID"):
         changed = False
         if update_ssid:
             changed = True
@@ -468,7 +468,7 @@ def list_l3_fw(
     """
     net = find_network_by_name(organization_name, network_name)
     # Get SSID details and rules
-    with console.status("Accessing API..."):
+    with status_spinner("Getting SSIDs"):
         ssid = dashboard.wireless.getNetworkWirelessSsid(
             networkId=net["id"],
             number=ssid_number,
@@ -506,7 +506,7 @@ def list_l7_fw(
     """
     net = find_network_by_name(organization_name, network_name)
     # Get SSID details and rules
-    with console.status("Accessing API..."):
+    with status_spinner("Getting SSIDs"):
         ssid = dashboard.wireless.getNetworkWirelessSsid(
             networkId=net["id"],
             number=ssid_number,

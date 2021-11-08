@@ -176,7 +176,7 @@ def add_staticroute(
             raise typer.Abort()
 
         # Add route via API
-        with console.status("Accessing API..."):
+        with status_spinner("Adding static route"):
             try:
                 dashboard.appliance.createNetworkApplianceStaticRoute(
                     networkId=net["id"],

@@ -4,6 +4,7 @@
  - [new] Display MX VLANs
 
  - [update] Use a standard status spinner across all commands
+ - [update] Update *devices ping* to use Dashboard Python API
 
 ### v0.1.7
  - [new] Update network traffic analysis settings

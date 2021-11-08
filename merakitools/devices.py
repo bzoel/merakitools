@@ -9,7 +9,7 @@ from time import sleep
 import typer
 from merakitools.console import console
 from merakitools.dashboardapi import dashboard
-from merakitools.meraki_helpers import api_req, find_network_by_name, find_org_by_name
+from merakitools.meraki_helpers import find_network_by_name, find_org_by_name
 from merakitools.formatting_helpers import table_with_columns
 from merakitools.types import DeviceModel, DeviceSortOptions
 from rich import inspect, box
@@ -246,18 +246,28 @@ def ping(
     """
     Ping a Meraki device
     """
-    # Use different endpoint and params if a target is specified
-    endpoint = f"devices/{serial}/liveTools/pingDevice"
-    params = {count: count}
-    if target is not None:
-        endpoint = f"devices/{serial}/liveTools/ping"
-        params["target"] = target
-
-    # Create a new ping task
     with console.status("Pinging device..", spinner="material"):
-        ping = api_req(endpoint, method="POST", params=params)
+        # Create a new ping task
+        params = {
+            "serial": serial,
+            "count": count,
+        }
+        if target is None:
+            ping = dashboard.devices.createDeviceLiveToolsPingDevice(**params)
+        else:
+            params["target"] = target
+            ping = dashboard.devices.createDeviceLiveToolsPing(**params)
+
+        # Poll for an update on the ping ttask
         while ping["status"] in ["new", "running"]:
-            ping = api_req(f"{endpoint}/{ping['pingId']}")
+            params = {
+                "serial": serial,
+                "id": ping["pingId"],
+            }
+            if target is None:
+                ping = dashboard.devices.getDeviceLiveToolsPingDevice(**params)
+            else:
+                ping = dashboard.devices.getDeviceLiveToolsPing(**params)
             sleep(1)
 
     # Use 'Meraki cloud' if no target is specified

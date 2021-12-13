@@ -96,7 +96,7 @@ def list_security_events(
 
         if len(filtered_events) > 0:
             console.print(
-                f"Organization: {org['name']} matched {len(filtered_events)} events."
+                f"[bold]{org['name']}[/bold] matched {len(filtered_events)} events."
             )
             for host in event_hosts:
                 console.print(f" {host}")

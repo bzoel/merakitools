@@ -17,6 +17,7 @@ $ merakitools [OPTIONS] COMMAND [ARGS]...
 * `devices`: Meraki devices
 * `mr`: Meraki MR wireless
 * `ms`: Meraki MS switches
+* `msp`: Manage multiple networks
 * `mx`: Meraki MX appliances
 * `networks`: Meraki networks
 * `orgs`: Meraki organizations
@@ -473,6 +474,56 @@ $ merakitools ms update-switchport [OPTIONS] SERIAL
 * `--remove-tag TEXT`
 * `--help`: Show this message and exit.
 
+## `merakitools msp`
+
+Manage multiple networks
+
+**Usage**:
+
+```console
+$ merakitools msp [OPTIONS] COMMAND [ARGS]...
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+**Commands**:
+
+* `enable-api-all`: Enable the Meraki API for all accessible...
+* `list-security-events`: List security events for organization(s),...
+
+### `merakitools msp enable-api-all`
+
+Enable the Meraki API for all accessible organizations
+
+**Usage**:
+
+```console
+$ merakitools msp enable-api-all [OPTIONS]
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+### `merakitools msp list-security-events`
+
+List security events for organization(s), filtering by organization or event name
+
+**Usage**:
+
+```console
+$ merakitools msp list-security-events [OPTIONS]
+```
+
+**Options**:
+
+* `--days-ago INTEGER`: How many days to look back for events  [default: 3]
+* `--organization-name TEXT`: Specify organization
+* `--filter-event-name TEXT`: Filter by event message
+* `--help`: Show this message and exit.
+
 ## `merakitools mx`
 
 Meraki MX appliances
@@ -491,6 +542,8 @@ $ merakitools mx [OPTIONS] COMMAND [ARGS]...
 
 * `add-staticroute`: Add one or more static routes to an MX device
 * `create-staticnat`: Add a 1:1 NAT entry to an MX device
+* `list-routes`: List MX device routes
+* `list-vlans`
 
 ### `merakitools mx add-staticroute`
 
@@ -534,6 +587,46 @@ $ merakitools mx create-staticnat [OPTIONS] ORGANIZATION_NAME NETWORK_NAME
 * `--port TEXT`
 * `--uplink [internet1|internet2]`: [default: internet1]
 * `--confirm / --no-confirm`: [default: True]
+* `--help`: Show this message and exit.
+
+### `merakitools mx list-routes`
+
+List MX device routes
+
+**Usage**:
+
+```console
+$ merakitools mx list-routes [OPTIONS] ORGANIZATION_NAME NETWORK_NAME
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+* `NETWORK_NAME`: [required]
+
+**Options**:
+
+* `--name TEXT`: Only show routes with a specific name
+* `--subnet TEXT`: Only show routes with a specific subnet
+* `--gateway TEXT`: Only show routes with a specific gateway
+* `--help`: Show this message and exit.
+
+### `merakitools mx list-vlans`
+
+**Usage**:
+
+```console
+$ merakitools mx list-vlans [OPTIONS] ORGANIZATION_NAME NETWORK_NAME
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+* `NETWORK_NAME`: [required]
+
+**Options**:
+
+* `--include-dhcp / --no-include-dhcp`: Include DHCP information for each subnet  [default: False]
 * `--help`: Show this message and exit.
 
 ## `merakitools networks`

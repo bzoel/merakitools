@@ -301,7 +301,7 @@ def create_ip_objects(
             obj_name = obj.replace(".", "-")
 
         new_obj = api_req(
-            "organizations/{org['id']}/policyObjects",
+            f"organizations/{org['id']}/policyObjects",
             method="POST",
             json={
                 "name": obj_name,

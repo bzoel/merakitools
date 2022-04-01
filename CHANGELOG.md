@@ -1,4 +1,7 @@
 # merakitools - CHANGELOG
+### v0.1.9
+ - [new] List network firmware upgrades
+ 
 ### v0.1.8
  - [new] Display MX static routes
  - [new] Display MX VLANs

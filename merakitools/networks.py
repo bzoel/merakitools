@@ -153,6 +153,54 @@ def traffic_analysis(
 
 
 @app.command()
+def list_firmware_upgrades(
+    organization_name: str,
+    network_name: str,
+):
+    """
+    List firmware upgrades for a network
+    """
+    net = find_network_by_name(organization_name, network_name)
+    with status_spinner("Getting firmware information"):
+        firmware_upgrades = dashboard.networks.getNetworkFirmwareUpgrades(
+            networkId=net["id"]
+        )
+
+    table = table_with_columns(
+        [
+            "Current Version",
+            "Last Upgrade",
+            "Last Upgrade Time",
+            "Available Versions",
+            "Upgrade Scheduled",
+            "Upgrade Time",
+        ],
+        first_column_name="Product",
+    )
+    for product, fw_info in firmware_upgrades["products"].items():
+
+        available_versions = [
+            av["shortName"]
+            for av in fw_info["availableVersions"]
+            if av["id"] != fw_info["currentVersion"]["id"]
+        ]
+
+        table.add_row(
+            product.capitalize(),
+            f"[bold]{fw_info['currentVersion']['shortName']}[/bold] ({fw_info['currentVersion']['releaseType']})",
+            f"[bold]{fw_info['lastUpgrade']['fromVersion']['shortName']}[/bold] -> [bold]{fw_info['lastUpgrade']['toVersion']['shortName']}[/bold]",
+            fw_info["lastUpgrade"]["time"],
+            ", ".join(available_versions),
+            f"{fw_info['nextUpgrade']['toVersion']['shortName']} ({fw_info['nextUpgrade']['toVersion']['releaseType']})"
+            if fw_info["nextUpgrade"]["time"]
+            else "",
+            fw_info["nextUpgrade"]["time"] if fw_info["nextUpgrade"]["time"] else "",
+        )
+
+    console.print(table)
+
+
+@app.command()
 def list_webhook_servers(
     organization_name: str,
     network_name: str,

@@ -188,7 +188,7 @@ def list_firmware_upgrades(
         table.add_row(
             product.capitalize(),
             f"[bold]{fw_info['currentVersion']['shortName']}[/bold] ({fw_info['currentVersion']['releaseType']})",
-            f"[bold]{fw_info['lastUpgrade']['fromVersion']['shortName']}[/bold] -> [bold]{fw_info['lastUpgrade']['toVersion']['shortName']}[/bold]",
+            f"[bold]{fw_info['lastUpgrade']['fromVersion'].get('shortName', None)}[/bold] -> [bold]{fw_info['lastUpgrade']['toVersion'].get('shortName', None)}[/bold]",
             fw_info["lastUpgrade"]["time"],
             ", ".join(available_versions),
             f"{fw_info['nextUpgrade']['toVersion']['shortName']} ({fw_info['nextUpgrade']['toVersion']['releaseType']})"

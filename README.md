@@ -1,4 +1,7 @@
 # merakitools
+[![CI](https://github.com/billyzoellers/merakitools/actions/workflows/ci.yml/badge.svg)](https://github.com/billyzoellers/merakitools/actions/workflows/ci.yml)
+[![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/PyCQA/pylint)
+[![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
 
 CLI tools for managing Meraki networks based on [Typer](https://typer.tiangolo.com/).
 

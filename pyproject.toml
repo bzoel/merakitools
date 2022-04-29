@@ -18,11 +18,25 @@ meraki = "^1.12.0"
 pytest = "^5.2"
 typer-cli = "^0.0.12"
 black = "^21.9b0"
+pylint = "^2.13.7"
+bandit = {extras = ["toml"], version = "^1.7.4"}
 
 [tool.poetry.urls]
 documentation = "https://github.com/billyzoellers/merakitools/README.md"
 source = "https://github.com/billyzoellers/merakitools"
 tracker = "https://github.com/billyzoellers/merakitools/issues"
+
+[tool.black]
+preview = true
+
+[tool.bandit]
+skips = ["B101",]
+
+[tool.pylint.format]
+max-line-legth = "88"
+
+[tool.pylint.messages_control]
+disable = "C0330, C0326"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

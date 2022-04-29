@@ -1,5 +1,5 @@
 # merakitools
-[![CI](https://github.com/billyzoellers/merakitools/actions/workflows/ci.yml/badge.svg)](https://github.com/billyzoellers/merakitools/actions/workflows/ci.yml)
+[![CI](https://github.com/billyzoellers/merakitools/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/billyzoellers/merakitools/actions/workflows/ci.yml)
 [![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/PyCQA/pylint)
 [![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
 

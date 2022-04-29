@@ -106,25 +106,25 @@ def update_settings(
 
 
 @app.command()
-def health(
-  organization_name: str,
-  network_name: str
-):
-  """
-  Get Meraki network health (global alerts) for a network
-  """
-  # Find a network and get network health alerts
-  net = find_network_by_name(organization_name, network_name)
-  with console.status("Accessing API..."):
-    health = dashboard.networks.getNetworkHealthAlerts(net["id"])
+def health(organization_name: str, network_name: str):
+    """
+    Get Meraki network health (global alerts) for a network
+    """
+    # Find a network and get network health alerts
+    net = find_network_by_name(organization_name, network_name)
+    with console.status("Accessing API..."):
+        health = dashboard.networks.getNetworkHealthAlerts(net["id"])
 
-  # Print number of alerts found, exist it no alerts
-  if not health:
-    console.print(f"[green]No health alerts found for {net['name']}!")
-    raise typer.Exit()
-  console.print(f"Found {len(health)} alerts for {net['name']}")
+    # Print number of alerts found, exist it no alerts
+    if not health:
+        console.print(f"[green]No health alerts found for {net['name']}!")
+        raise typer.Exit()
+    console.print(f"Found {len(health)} alerts for {net['name']}")
 
-  console.print(table_network_health(health, title=f"Network health for {net['name']}"))
+    console.print(
+        table_network_health(health, title=f"Network health for {net['name']}")
+    )
+
 
 @app.command()
 def traffic_analysis(

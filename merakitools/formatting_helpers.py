@@ -9,6 +9,9 @@ from rich.table import Table, Column
 from rich import box
 import re
 
+# Mapping of styles to severity - TODO: move to an import
+severity_styles = {"critical": "bold red", "warning": "yellow"}
+
 
 def camel_case_split(str) -> str:
     """
@@ -67,36 +70,37 @@ def table_mx_onetoone_nat(rules: List, title: str = "NAT Entries") -> Table:
 
     return table
 
+
 def table_network_health(health, title=None, include_network_name=False):
-  # Create a table of network health alerts
-  columns = ["Alert", "Category", "Severity", "Details"]
-  if include_network_name:
-    columns.insert(0, "Network")
-    empty_columns = ("", "", "", "")
-  else:
-    empty_columns = ("", "", "")
-  table = table_with_columns(columns, title=title)
-
-  for alert in health:
-    row_items = (
-      alert['type'],
-      alert['category'],
-      f"[{severity_styles.get(alert['severity'], '')}]{alert['severity'].capitalize()}",
-      ""
-    )
+    # Create a table of network health alerts
+    columns = ["Alert", "Category", "Severity", "Details"]
     if include_network_name:
-      table.add_row(alert['network_name'], *row_items)
+        columns.insert(0, "Network")
+        empty_columns = ("", "", "", "")
     else:
-      table.add_row(*row_items)
+        empty_columns = ("", "", "")
+    table = table_with_columns(columns, title=title)
 
-    # Create additional rows for devices / applications if needed
-    for app in alert["scope"]["applications"]:
-      table.add_row(*empty_columns, f"-- Application details --")
+    for alert in health:
+        row_items = (
+            alert["type"],
+            alert["category"],
+            f"[{severity_styles.get(alert['severity'], '')}]{alert['severity'].capitalize()}",
+            "",
+        )
+        if include_network_name:
+            table.add_row(alert["network_name"], *row_items)
+        else:
+            table.add_row(*row_items)
 
-    for device in alert["scope"]["devices"]:
-      detail = f"{device['productType'].capitalize()}: {device['name']}"
-      if device.get("lldp"):
-        detail += f" Port #{device['lldp']['portId']}"
-      table.add_row(*empty_columns, detail)
+        # Create additional rows for devices / applications if needed
+        for app in alert["scope"]["applications"]:
+            table.add_row(*empty_columns, f"-- Application details --")
 
-  return table
+        for device in alert["scope"]["devices"]:
+            detail = f"{device['productType'].capitalize()}: {device['name']}"
+            if device.get("lldp"):
+                detail += f" Port #{device['lldp']['portId']}"
+            table.add_row(*empty_columns, detail)
+
+    return table

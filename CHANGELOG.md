@@ -1,6 +1,9 @@
 # merakitools - CHANGELOG
 ### v0.1.9
  - [new] List network firmware upgrades
+ - [new] Add support for MT endpoints
+ - [update] Include user agent in list-api-requsts
+ - [fix] Fix regression in policyObjects
  
 ### v0.1.8
  - [new] Display MX static routes

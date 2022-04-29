@@ -18,6 +18,7 @@ $ merakitools [OPTIONS] COMMAND [ARGS]...
 * `mr`: Meraki MR wireless
 * `ms`: Meraki MS switches
 * `msp`: Manage multiple networks
+* `mt`: Meraki MT sensors
 * `mx`: Meraki MX appliances
 * `networks`: Meraki networks
 * `orgs`: Meraki organizations
@@ -524,6 +525,64 @@ $ merakitools msp list-security-events [OPTIONS]
 * `--filter-event-name TEXT`: Filter by event message
 * `--help`: Show this message and exit.
 
+## `merakitools mt`
+
+Meraki MT sensors
+
+**Usage**:
+
+```console
+$ merakitools mt [OPTIONS] COMMAND [ARGS]...
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+**Commands**:
+
+* `history`: Show the historical sensor readings for an...
+* `latest-readings`: Show the latest reading for each metric from...
+
+### `merakitools mt history`
+
+Show the historical sensor readings for an organization
+
+**Usage**:
+
+```console
+$ merakitools mt history [OPTIONS] ORGANIZATION_NAME
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+
+**Options**:
+
+* `--serial TEXT`
+* `--metric-type [battery|temperature|humidity|water|door|noise|co2|tvoc|indoorAirQuality|pm25|button]`
+* `--help`: Show this message and exit.
+
+### `merakitools mt latest-readings`
+
+Show the latest reading for each metric from each sensor
+
+**Usage**:
+
+```console
+$ merakitools mt latest-readings [OPTIONS] ORGANIZATION_NAME
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+
+**Options**:
+
+* `--serial TEXT`
+* `--help`: Show this message and exit.
+
 ## `merakitools mx`
 
 Meraki MX appliances
@@ -647,6 +706,7 @@ $ merakitools networks [OPTIONS] COMMAND [ARGS]...
 
 * `delete-payload-template`: Delete a webhook payload template
 * `list`: List Meraki networks in an organization
+* `list-firmware-upgrades`: List firmware upgrades for a network
 * `list-payload-templates`: List webhook payload templates for a network
 * `list-webhook-servers`: List webhook servers for a network
 * `new-payload-template`: Create a webhook payload template
@@ -692,6 +752,25 @@ $ merakitools networks list [OPTIONS] ORGANIZATION_NAME
 **Options**:
 
 * `--product-type [appliance|switch|wireless|camera|systemsManager|enviornmental|sensor|cellularGateway]`
+* `--help`: Show this message and exit.
+
+### `merakitools networks list-firmware-upgrades`
+
+List firmware upgrades for a network
+
+**Usage**:
+
+```console
+$ merakitools networks list-firmware-upgrades [OPTIONS] ORGANIZATION_NAME NETWORK_NAME
+```
+
+**Arguments**:
+
+* `ORGANIZATION_NAME`: [required]
+* `NETWORK_NAME`: [required]
+
+**Options**:
+
 * `--help`: Show this message and exit.
 
 ### `merakitools networks list-payload-templates`

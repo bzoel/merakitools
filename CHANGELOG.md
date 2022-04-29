@@ -1,4 +1,8 @@
 # merakitools - CHANGELOG
+### v0.1.10
+ - [new] Add org/network health
+ - [new] Add org MX uplink stats
+
 ### v0.1.9.1
  - [fix] Fix `merakitools mt` commands
  

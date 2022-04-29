@@ -1,4 +1,5 @@
 # merakitools
+[![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/billyzoellers/merakitools)
 [![CI](https://github.com/billyzoellers/merakitools/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/billyzoellers/merakitools/actions/workflows/ci.yml)
 [![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/PyCQA/pylint)
 [![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)

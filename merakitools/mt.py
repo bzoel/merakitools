@@ -28,7 +28,7 @@ def latest_readings(
     readings = dashboard.sensor.getOrganizationSensorReadingsLatest(org["id"])
 
     for mt in readings:
-        if serial is not None and mt["serial"] not in serial:
+        if serial and mt["serial"] not in serial:
             continue
 
         table = table_with_columns(
@@ -62,10 +62,10 @@ def history(
         ["Data", "Time", "Network / Serial"], "History", first_column_name="Metric"
     )
     for reading in readings:
-        if metric_type is not None and reading["metric"] not in metric_type:
+        if metric_type and reading["metric"] not in metric_type:
             continue
 
-        if serial is not None and reading["serial"] not in serial:
+        if serial and reading["serial"] not in serial:
             continue
 
         table.add_row(

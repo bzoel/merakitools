@@ -1,4 +1,7 @@
 # merakitools - CHANGELOG
+### v0.1.9.1
+ - [fix] Fix `merakitools mt` commands
+ 
 ### v0.1.9
  - [new] List network firmware upgrades
  - [new] Add support for MT endpoints

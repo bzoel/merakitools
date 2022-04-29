@@ -15,7 +15,7 @@ from merakitools.meraki_helpers import (
     find_network_by_name,
     api_req,
 )
-from merakitools.formatting_helpers import table_with_columns
+from merakitools.formatting_helpers import table_with_columns, table_network_health
 from merakitools.types import ProductType, NetworkTrafficAnalysisMode
 from rich import inspect
 from pathlib import Path
@@ -124,6 +124,7 @@ def health(
     raise typer.Exit()
   console.print(f"Found {len(health)} alerts for {net['name']}")
 
+  console.print(table_network_health(health, title=f"Network health for {net['name']}"))
 
 @app.command()
 def traffic_analysis(

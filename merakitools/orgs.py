@@ -14,7 +14,7 @@ from merakitools.meraki_helpers import (
     find_orgs_by_name,
     api_req,
 )
-from merakitools.formatting_helpers import table_with_columns
+from merakitools.formatting_helpers import table_with_columns, table_network_health
 from rich import inspect
 
 app = typer.Typer()
@@ -64,6 +64,27 @@ def list(name: Optional[str] = None, include_counts: bool = False):
             table.add_row(*row)
 
     console.print(table)
+
+
+@app.command()
+def network_health(
+  organization_name: str
+):
+  """
+  Meraki network health (global alerts) for all network
+  """
+  org = find_org_by_name(organization_name)
+
+  orgwide_health = []
+  with console.status("Accessing API..."):
+    networks = dashboard.organizations.getOrganizationNetworks(org["id"])
+    for net in networks:
+      health = api_req(f"networks/{net['id']}/health/alerts")
+      for alert in health:
+        alert['network_name'] = net['name']
+        orgwide_health.append(alert)
+
+  console.print(table_network_health(health=orgwide_health, title=f"Health for {org['name']}", include_network_name=True))
 
 
 @app.command()

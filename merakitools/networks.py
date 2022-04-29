@@ -112,7 +112,7 @@ def health(organization_name: str, network_name: str):
     """
     # Find a network and get network health alerts
     net = find_network_by_name(organization_name, network_name)
-    with console.status("Accessing API..."):
+    with status_spinner("Gathering health information"):
         health = dashboard.networks.getNetworkHealthAlerts(net["id"])
 
     # Print number of alerts found, exist it no alerts

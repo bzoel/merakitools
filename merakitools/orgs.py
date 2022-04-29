@@ -74,7 +74,7 @@ def network_health(organization_name: str):
     org = find_org_by_name(organization_name)
 
     orgwide_health = []
-    with console.status("Accessing API..."):
+    with status_spinner("Gathering health information"):
         networks = dashboard.organizations.getOrganizationNetworks(org["id"])
         for net in networks:
             health = dashboard.networks.getNetworkHealthAlerts(net["id"])

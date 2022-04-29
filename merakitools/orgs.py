@@ -92,6 +92,52 @@ def network_health(organization_name: str):
 
 
 @app.command()
+def mx_uplinks(
+    organization_name: str,
+):
+    """
+    Return the uplink loss and latency for every MX in the organization
+    """
+    org = find_org_by_name(organization_name)
+    with status_spinner("Gathering data"):
+        networks = dashboard.organizations.getOrganizationNetworks(org["id"])
+        devices = dashboard.organizations.getOrganizationDevices(org["id"])
+        uplinks = dashboard.organizations.getOrganizationDevicesUplinksLossAndLatency(
+            org["id"]
+        )
+
+    # Create network ID to name mapping
+    network_map = {}
+    for network in networks:
+        network_map[network["id"]] = network["name"]
+
+    # Create serial to device mapping
+    device_map = {}
+    for device in devices:
+        device_map[device["serial"]] = device["name"]
+
+    table = table_with_columns(
+        ["Uplink", "IP", "Loss", "Latency", "Time"], first_column_name="Device"
+    )
+
+    for uplink in uplinks:
+        table.add_row(
+            f"{network_map[uplink['networkId']]} / {device_map[uplink['serial']]}",
+            uplink["uplink"],
+            uplink["ip"],
+            f"{uplink['timeSeries'][-1]['lossPercent']}%"
+            if uplink["timeSeries"][-1]["lossPercent"] is not None
+            else "",
+            f"{uplink['timeSeries'][-1]['latencyMs']}ms"
+            if uplink["timeSeries"][-1]["latencyMs"] is not None
+            else "",
+            f"{uplink['timeSeries'][-1]['ts']}",
+        )
+
+    console.print(table)
+
+
+@app.command()
 def create(
     name: str,
     org_admin: Optional[List[str]] = typer.Option(

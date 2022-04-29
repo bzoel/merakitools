@@ -145,3 +145,21 @@ class NetworkTrafficAnalysisMode(str, Enum):
     disabled = "disabled"
     basic = "basic"
     detailed = "detailed"
+
+
+class MTMetricType(str, Enum):
+    """
+    Meraki MT metric types
+    """
+
+    battery = "battery"
+    temperature = "temperature"
+    humidity = "humidity"
+    water = "water"
+    door = "door"
+    noise = "noise"
+    co2 = "co2"
+    tvoc = "tvoc"
+    indoorAirQuality = "indoorAirQuality"
+    pm25 = "pm25"
+    button = "button"

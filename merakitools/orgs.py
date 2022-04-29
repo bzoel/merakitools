@@ -339,14 +339,14 @@ def list_api_requests(organization_name: str):
         )
     table = table_with_columns(
         ["Endpoint", "Response Code", "Source IP", "User Agent", "Time"],
-        title=f"API Requests for {org['name']}"
+        title=f"API Requests for {org['name']}",
     )
     for req in api_requests:
         table.add_row(
             f"{req['method']} {req['path']}{req['queryString']}",
             str(req["responseCode"]),
             req["sourceIp"],
-            req['userAgent'][0:20],
+            req["userAgent"][0:20],
             req["ts"],
         )
 

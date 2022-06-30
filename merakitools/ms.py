@@ -101,7 +101,7 @@ def update_switchport(
                 if tag in update["tags"]:
                     update["tags"].remove(tag)
 
-        # Commit the updated port to Meraki dashboard
+        # Create an action to be included in action batch
         if update:
             update_action = dashboard.batch.switch.updateDeviceSwitchPort(
                 serial=serial, portId=port["portId"], **update

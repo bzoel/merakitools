@@ -64,7 +64,8 @@ def list_security_events(
     start_time = datetime.combine(start_time, start_time.min.time())
     dtformat = "%Y-%m-%d %H:%M:%S"
     console.print(
-        f" [italic]Displaying events from {start_time.strftime(dtformat)} to {end_time.strftime(dtformat)}."
+        f" [italic]Displaying events from {start_time.strftime(dtformat)} to"
+        f" {end_time.strftime(dtformat)}."
     )
 
     # Iterate through each org to gather security events

@@ -243,7 +243,8 @@ def list_rf_profiles(organization_name: str, network_name: str):
                 "[green]Enabled"
                 if profile["clientBalancingEnabled"]
                 else "[red]Disabled",
-                f"{profile['apBandSettings']['bandOperationMode']} / {'[green]Band Steering Enabled' if profile['apBandSettings']['bandSteeringEnabled'] else '[red]Band Steering Disabled'}"
+                f"{profile['apBandSettings']['bandOperationMode']} /"
+                f" {'[green]Band Steering Enabled' if profile['apBandSettings']['bandSteeringEnabled'] else '[red]Band Steering Disabled'}"
                 if profile["bandSelectionType"] == "ap"
                 else "per SSID",
                 f"{profile['twoFourGhzSettings']['minPower']}-{profile['twoFourGhzSettings']['maxPower']}dBm",
@@ -392,7 +393,8 @@ def update_ssid(
     # Confirm SSID name with user before continuing
     if confirm:
         console.print(
-            f"SSID number [bold]{ssid_number}[/bold] is named [bold]{ssid['name']}[/bold]"
+            f"SSID number [bold]{ssid_number}[/bold] is named"
+            f" [bold]{ssid['name']}[/bold]"
         )
         confirmed = Confirm.ask("Do you want to continue?", console=console)
         if not confirmed:
@@ -453,7 +455,8 @@ def update_ssid(
 
     console.print(f"[bold green]SSID '{ssid['name']}' has been updated.")
     console.print(
-        f" The following parameters were updated: {', '.join(update_ssid | update_lan_fw)}"
+        " The following parameters were updated:"
+        f" {', '.join(update_ssid | update_lan_fw)}"
     )
 
 

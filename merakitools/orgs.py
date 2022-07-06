@@ -195,14 +195,16 @@ def saml(
         "enabled"
     ]
     console.print(
-        f"SAML for [bold]{org['name']}[/bold] is currently [bold]{'enabled' if saml_status else 'disabled'}."
+        f"SAML for [bold]{org['name']}[/bold] is currently"
+        f" [bold]{'enabled' if saml_status else 'disabled'}."
     )
 
     if enable is not None:
         if saml_status == enable:
             # No change is requried
             console.print(
-                f" No change. SAML is already [bold]{'enabled' if saml_status else 'disabled'}."
+                " No change. SAML is already"
+                f" [bold]{'enabled' if saml_status else 'disabled'}."
             )
         else:
             # Change API status
@@ -318,7 +320,8 @@ def api(
     org = find_org_by_name(organization_name)
     api_status = org["api"]["enabled"]
     console.print(
-        f"API for [bold]{org['name']}[/bold] is currently [bold]{'enabled' if api_status else 'disabled'}."
+        f"API for [bold]{org['name']}[/bold] is currently"
+        f" [bold]{'enabled' if api_status else 'disabled'}."
     )
 
     # No change requested
@@ -328,7 +331,8 @@ def api(
     # No change required
     if api_status == enable:
         console.print(
-            f" No change. API is already [bold]{'enabled' if api_status else 'disabled'}."
+            " No change. API is already"
+            f" [bold]{'enabled' if api_status else 'disabled'}."
         )
         return api_status
 

@@ -219,11 +219,20 @@ def list_routing_interfaces(
                 dhcp_formatted = "Disabled"
             elif dhcp["dhcpMode"] == "dhcpServer":
                 if dhcp["dnsNameserversOption"] == "custom":
-                    dhcp_formatted = f"[bold]Server[/bold] DNS: {', '.join(dhcp['dnsCustomNameservers'])}"
+                    dhcp_formatted = (
+                        "[bold]Server[/bold] DNS:"
+                        f" {', '.join(dhcp['dnsCustomNameservers'])}"
+                    )
                 else:
-                    dhcp_formatted = f"[bold]Server[/bold] {dhcp['dnsNameserversOption'].capitalize()}"
+                    dhcp_formatted = (
+                        "[bold]Server[/bold]"
+                        f" {dhcp['dnsNameserversOption'].capitalize()}"
+                    )
             elif dhcp["dhcpMode"] == "dhcpRelay":
-                dhcp_formatted = f"[bold]Relay[/bold] Servers: {', '.join(dhcp['dhcpRelayServerIps'])}"
+                dhcp_formatted = (
+                    "[bold]Relay[/bold] Servers:"
+                    f" {', '.join(dhcp['dhcpRelayServerIps'])}"
+                )
             else:
                 dhcp_formatted = dhcp["dhcpMode"].capitalize()
                 inspect(dhcp)

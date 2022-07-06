@@ -169,7 +169,8 @@ def traffic_analysis(
                 mode=set_mode,
             )
         console.print(
-            f"[bold green]Traffic analysis mode for '{net['name']}' changed to {set_mode}"
+            f"[bold green]Traffic analysis mode for '{net['name']}' changed to"
+            f" {set_mode}"
         )
 
 
@@ -199,7 +200,6 @@ def list_firmware_upgrades(
         first_column_name="Product",
     )
     for product, fw_info in firmware_upgrades["products"].items():
-
         available_versions = [
             av["shortName"]
             for av in fw_info["availableVersions"]
@@ -208,8 +208,10 @@ def list_firmware_upgrades(
 
         table.add_row(
             product.capitalize(),
-            f"[bold]{fw_info['currentVersion']['shortName']}[/bold] ({fw_info['currentVersion']['releaseType']})",
-            f"[bold]{fw_info['lastUpgrade']['fromVersion'].get('shortName', None)}[/bold] -> [bold]{fw_info['lastUpgrade']['toVersion'].get('shortName', None)}[/bold]",
+            f"[bold]{fw_info['currentVersion']['shortName']}[/bold]"
+            f" ({fw_info['currentVersion']['releaseType']})",
+            f"[bold]{fw_info['lastUpgrade']['fromVersion'].get('shortName', None)}[/bold]"
+            f" -> [bold]{fw_info['lastUpgrade']['toVersion'].get('shortName', None)}[/bold]",
             fw_info["lastUpgrade"]["time"],
             ", ".join(available_versions),
             f"{fw_info['nextUpgrade']['toVersion']['shortName']} ({fw_info['nextUpgrade']['toVersion']['releaseType']})"
@@ -280,7 +282,8 @@ def new_webhook_server(
         raise typer.Abort()
     if duplicate_url:
         console.print(
-            f"[red]A webhook server named {duplicate_url['name']} already exists with this URL!"
+            f"[red]A webhook server named {duplicate_url['name']} already exists with"
+            " this URL!"
         )
         raise typer.Abort()
 
@@ -355,7 +358,8 @@ def new_payload_template(
         )
 
     console.print(
-        f"[green]Created new template named [bold]{template['name']}[/bold] with ID {template['payloadTemplateId']}."
+        f"[green]Created new template named [bold]{template['name']}[/bold] with ID"
+        f" {template['payloadTemplateId']}."
     )
 
 

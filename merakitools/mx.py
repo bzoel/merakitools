@@ -166,7 +166,8 @@ def add_staticroute(
                 route_name, route_subnet = route.split("!")
         else:
             console.print(
-                "A next hop must be provided for each route, or --default-next-hop specified"
+                "A next hop must be provided for each route, or --default-next-hop"
+                " specified"
             )
             raise typer.Abort
 
@@ -193,7 +194,8 @@ def add_staticroute(
                     gatewayIp=format(route_nexthop),
                 )
                 console.print(
-                    f"Created new route [bold]{route_name}[/bold] with subnet {route_subnet}"
+                    f"Created new route [bold]{route_name}[/bold] with subnet"
+                    f" {route_subnet}"
                 )
             except APIError as err:
                 console.print(f"Failed to create route [bold]{route_name}[/bold]:")
@@ -248,7 +250,8 @@ def create_staticnat(
         valid_protocols = ["tcp", "udp", "icmp", "any"]
         if not proto in valid_protocols:
             console.print(
-                f"Incorect --port protocol. Protocol must be \[{', '.join(valid_protocols)}]"
+                "Incorect --port protocol. Protocol must be"
+                f" \[{', '.join(valid_protocols)}]"
             )
             raise typer.Abort()
 

@@ -283,14 +283,18 @@ def ping(
     if "replies" in ping["results"].keys():
         for reply in ping["results"]["replies"]:
             table.add_row(
-                f"{reply['size']} bytes from {target}: icmp_seq={reply['sequenceId']} time={reply['latency']}"
+                f"{reply['size']} bytes from {target}:"
+                f" icmp_seq={reply['sequenceId']} time={reply['latency']}"
             )
     table.add_row(f"\n--- {target} ping statistics ---")
     table.add_row(
-        f"{ping['results']['sent']} packets transmitted, {ping['results']['received']} packets received, {ping['results']['loss']['percentage']}% packet loss"
+        f"{ping['results']['sent']} packets transmitted,"
+        f" {ping['results']['received']} packets received,"
+        f" {ping['results']['loss']['percentage']}% packet loss"
     )
     if "latencies" in ping["results"].keys():
         table.add_row(
-            f"round-trip min/avg/max = {ping['results']['latencies']['minimum']}/{ping['results']['latencies']['average']}/{ping['results']['latencies']['maximum']}"
+            "round-trip min/avg/max ="
+            f" {ping['results']['latencies']['minimum']}/{ping['results']['latencies']['average']}/{ping['results']['latencies']['maximum']}"
         )
     console.print(table)

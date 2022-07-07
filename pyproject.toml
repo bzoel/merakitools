@@ -30,9 +30,6 @@ preview = true
 [tool.bandit]
 skips = ["B101",]
 
-[tool.pylint.format]
-max-line-legth = "88"
-
 [tool.pylint.messages_control]
 disable = "C0330, C0326"
 

@@ -4,4 +4,4 @@ merakitools/__init__.py
 merakitools version
 """
 
-__version__ = "0.1.9.1"
+__version__ = "0.1.10"

@@ -6,13 +6,12 @@ CLI tools for managing Meraki networks based on Typer
 """
 
 from typing import List, Optional
+from datetime import datetime, timedelta
 import typer
+from rich.progress import track
 from merakitools.console import console, status_spinner
 from merakitools.dashboardapi import dashboard, APIError
-from merakitools.formatting_helpers import table_with_columns
-from rich.progress import track
-from rich import inspect
-from datetime import datetime, timedelta
+
 
 app = typer.Typer()
 
@@ -32,7 +31,7 @@ def enable_api_all():
             org = dashboard.organizations.updateOrganization(
                 organizationId=org["id"], name=org["name"], api={"enabled": True}
             )
-        except APIError as err:
+        except APIError:
             console.print(f"[red]Error enabling API for {org['name']}")
             continue
         console.print(f"[green]API enabled for {org['name']}")
@@ -78,7 +77,7 @@ def list_security_events(
                 t0=start_time,
                 t1=end_time,
             )
-        except APIError as err:
+        except APIError:
             continue
 
         # Iterate through each event

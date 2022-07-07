@@ -4,21 +4,18 @@ Billy Zoellers
 
 CLI tools for managing Meraki networks based on Typer
 """
-from typing import List, Optional
+from typing import Optional
 from rich.prompt import Confirm
 import typer
 from merakitools.console import console, status_spinner
 from merakitools.dashboardapi import dashboard
 from merakitools.meraki_helpers import (
-    find_orgs_by_name,
     find_org_by_name,
     find_network_by_name,
     api_req,
 )
 from merakitools.formatting_helpers import table_with_columns, table_network_health
 from merakitools.types import ProductType, NetworkTrafficAnalysisMode
-from rich import inspect
-from pathlib import Path
 
 app = typer.Typer()
 
@@ -86,14 +83,14 @@ def update_settings(
         "localStatusPageEnabled": local_status,
         "remoteStatusPageEnabled": remote_status,
     }
-    for k, v in items.items():
-        if v is not None:
-            if v is not settings.get(k, None):
-                update[k] = v
+    for key, value in items.items():
+        if value is not None:
+            if value is not settings.get(key, None):
+                update[key] = value
 
     # Do not call API if no changes were made
     if not update:
-        console.print(f"[bold green]No settings changed.")
+        console.print("[bold green]No settings changed.")
         raise typer.Exit()
 
     # Update settings
@@ -159,12 +156,12 @@ def traffic_analysis(
 
         # Make change only if required
         if set_mode.lower() == traffic_analysis["mode"].lower():
-            console.print(f"[bold green]No settings changed.")
+            console.print("[bold green]No settings changed.")
             raise typer.Abort()
 
         # Update settings
         with status_spinner("Updating settings"):
-            settings = dashboard.networks.updateNetworkTrafficAnalysis(
+            dashboard.networks.updateNetworkTrafficAnalysis(
                 networkId=net["id"],
                 mode=set_mode,
             )
@@ -381,9 +378,9 @@ def delete_payload_template(
     # Search by name
     try:
         found = next(t for t in templates if t["name"] == name)
-    except StopIteration:
+    except StopIteration as exc:
         console.print(f"[red]Payload template named [bold]{name}[/bold] not found.")
-        raise typer.Abort()
+        raise typer.Abort() from exc
     console.print(f"Found template named [bold]{found['name']}")
 
     # Confirm with user

@@ -11,7 +11,6 @@ import requests
 import typer
 from merakitools.console import console
 from merakitools.dashboardapi import dashboard
-from rich.prompt import Confirm
 
 
 def find_orgs_by_name(org_name: Optional[str]) -> List:
@@ -35,11 +34,11 @@ def find_org_by_name(org_name: str):
             try:
                 # Get org by ID
                 org = dashboard.organizations.getOrganization(organizationId=org_name)
-            except APIError as err:
+            except APIError as exc:
                 console.print(
                     f"Organization ID [bold]{org_name}[/bold] not accessible."
                 )
-                raise typer.Abort()
+                raise typer.Abort() from exc
         else:
             try:
                 # Get list of accessible orgs and search by name
@@ -48,9 +47,9 @@ def find_org_by_name(org_name: str):
             except APIError as err:
                 console.print(f"{err.message}")
                 raise typer.Abort()
-            except StopIteration:
+            except StopIteration as exc:
                 console.print(f"Organization named [bold]{org_name}[/bold] not found.")
-                raise typer.Abort()
+                raise typer.Abort() from exc
 
     console.print(f"Organization: [bold]{org['name']}")
     return org
@@ -62,9 +61,9 @@ def find_org_id_by_device_serial(serial: str):
     """
     try:
         device = dashboard.devices.getDevice(serial=serial)
-    except APIError as err:
+    except APIError as exc:
         console.print(f"[red]Unable to find device with serial '{serial}'")
-        raise typer.Abort()
+        raise typer.Abort() from exc
 
     network = dashboard.networks.getNetwork(networkId=device["networkId"])
 
@@ -81,9 +80,9 @@ def find_network_by_name(org_name: str, net_name: str):
 
     try:
         net = next(net for net in nets if net["name"] == net_name)
-    except StopIteration:
+    except StopIteration as exc:
         print("Network not found.")
-        raise typer.Abort()
+        raise typer.Abort() from exc
 
     console.print(f"Network: [bold]{net['name']}")
     return net

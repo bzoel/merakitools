@@ -27,16 +27,16 @@ def latest_readings(
     org = find_org_by_name(organization_name)
     readings = dashboard.sensor.getOrganizationSensorReadingsLatest(org["id"])
 
-    for mt in readings:
-        if serial and mt["serial"] not in serial:
+    for device in readings:
+        if serial and device["serial"] not in serial:
             continue
 
         table = table_with_columns(
             ["Data", "Time"],
-            title=f"{mt['network']['name']}: {mt['serial']}",
+            title=f"{device['network']['name']}: {device['serial']}",
             first_column_name="Metric",
         )
-        for reading in mt["readings"]:
+        for reading in device["readings"]:
             table.add_row(
                 reading["metric"].capitalize(),
                 str(reading[reading["metric"]]),

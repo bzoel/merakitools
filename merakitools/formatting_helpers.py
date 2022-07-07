@@ -4,21 +4,21 @@ Billy Zoellers
 
 CLI tools for managing Meraki networks based on Typer
 """
+import re
 from typing import List, Optional
 from rich.table import Table, Column
 from rich import box
-import re
 
 # Mapping of styles to severity - TODO: move to an import
 severity_styles = {"critical": "bold red", "warning": "yellow"}
 
 
-def camel_case_split(str) -> str:
+def camel_case_split(input_string) -> str:
     """
     Input: applicationCategory
     Output: Application Category
     """
-    return re.sub(r"(\w)([A-Z])", r"\1 \2", str).capitalize()
+    return re.sub(r"(\w)([A-Z])", r"\1 \2", input_string).capitalize()
 
 
 def table_with_columns(
@@ -72,7 +72,9 @@ def table_mx_onetoone_nat(rules: List, title: str = "NAT Entries") -> Table:
 
 
 def table_network_health(health, title=None, include_network_name=False):
-    # Create a table of network health alerts
+    """
+    Create table of network health alerts
+    """
     columns = ["Alert", "Category", "Severity", "Details"]
     if include_network_name:
         columns.insert(0, "Network")

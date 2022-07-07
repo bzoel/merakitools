@@ -4,21 +4,18 @@ Billy Zoellers
 
 CLI tools for managing Meraki networks based on Typer
 """
-from os import stat
 from typing import List, Optional
+import ipaddress
 import typer
+from rich.prompt import Confirm
 from merakitools.console import console, status_spinner
 from merakitools.dashboardapi import dashboard, APIError
 from merakitools.meraki_helpers import (
     find_network_by_name,
-    find_orgs_by_name,
-    find_org_by_name,
 )
 from merakitools.formatting_helpers import table_with_columns, table_mx_onetoone_nat
-from merakitools.types import ProductType, MXInternetUplinks
-from rich.prompt import Confirm
-from rich import inspect
-import ipaddress
+from merakitools.types import MXInternetUplinks
+
 
 app = typer.Typer()
 
@@ -138,7 +135,7 @@ def add_staticroute(
     Add one or more static routes to an MX device
     """
     if not route:
-        console.print(f"No routes provided.")
+        console.print("No routes provided.")
         raise typer.Abort()
 
     # Find the network
@@ -216,7 +213,7 @@ def create_staticnat(
     Add a 1:1 NAT entry to an MX device
     """
     if not nat:
-        console.print(f"No NATs provided.")
+        console.print("No NATs provided.")
         raise typer.Abort()
 
     # Get a copy of existing NAT rules

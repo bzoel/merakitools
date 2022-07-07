@@ -7,14 +7,14 @@ CLI tools for managing Meraki networks based on Typer
 from typing import List, Optional
 from time import sleep
 import typer
+from rich import box
+from rich.prompt import Confirm
+from rich.table import Table
 from merakitools.console import console, status_spinner
 from merakitools.dashboardapi import dashboard
 from merakitools.meraki_helpers import find_network_by_name, find_org_by_name
 from merakitools.formatting_helpers import table_with_columns
 from merakitools.types import DeviceModel, DeviceSortOptions
-from rich import inspect, box
-from rich.prompt import Confirm
-from rich.table import Table
 
 app = typer.Typer()
 
@@ -84,7 +84,7 @@ def update(
     if name and len(devices) > 1:
         console.print(f"[bold red]You specified a name for {len(devices)} devices")
         confirm = Confirm.ask(
-            f" Do you want to assign the same name to multiple devices?",
+            " Do you want to assign the same name to multiple devices?",
             console=console,
         )
         if not confirm:

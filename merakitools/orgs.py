@@ -15,7 +15,6 @@ from merakitools.meraki_helpers import (
     api_req,
 )
 from merakitools.formatting_helpers import table_with_columns, table_network_health
-from rich import inspect
 
 app = typer.Typer()
 
@@ -174,7 +173,7 @@ def create(
     # Claim orders if specified
     if claim_order:
         try:
-            claim = dashboard.organizations.claimIntoOrganization(
+            dashboard.organizations.claimIntoOrganization(
                 organizationId=org["id"], orders=claim_order
             )
             console.print(f"Claimed orders: {', '.join(claim_order)}")
@@ -301,9 +300,7 @@ def claim_order(
 
     # Claim devices into networks if requested
     if claim_to_network_name is not None:
-        add = dashboard.networks.claimNetworkDevices(
-            networkId=net["id"], serials=serials
-        )
+        dashboard.networks.claimNetworkDevices(networkId=net["id"], serials=serials)
         console.print(
             f"[green]{len(serials)} devices were added to [bold]{net['name']}"
         )
@@ -390,7 +387,7 @@ def create_ip_objects(
 
     # Create a group with the new objects included
     if group_name:
-        new_group = api_req(
+        api_req(
             f"organizations/{org['id']}/policyObjects/groups",
             method="POST",
             json={

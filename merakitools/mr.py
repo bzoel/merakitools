@@ -4,15 +4,13 @@ Billy Zoellers
 
 CLI tools for managing Meraki networks based on Typer
 """
+from typing import Optional
 from meraki.exceptions import APIError
 from rich.prompt import Confirm
 import typer
-from typing import List, Optional
-
-from typer import params
 from merakitools.console import console, status_spinner
 from merakitools.dashboardapi import dashboard
-from merakitools.meraki_helpers import api_req, find_network_by_name, find_org_by_name
+from merakitools.meraki_helpers import find_network_by_name
 from merakitools.formatting_helpers import table_with_columns, camel_case_split
 from merakitools.types import (
     DeviceModel,
@@ -23,8 +21,6 @@ from merakitools.types import (
     MRSSIDWPAEncrytionMode,
     FirewallPolicyOption,
 )
-from rich import inspect
-from rich.progress import Progress
 
 app = typer.Typer()
 
@@ -420,10 +416,10 @@ def update_ssid(
         if ip_assignment_mode is not None
         else None,
     }
-    for k, v in items.items():
-        if v is not None:
-            if v != ssid.get(k, None):
-                update_ssid[k] = v
+    for key, value in items.items():
+        if value is not None:
+            if value != ssid.get(key, None):
+                update_ssid[key] = value
 
     # Enumerate changed value for Local LAN FW
     update_lan_fw = {}

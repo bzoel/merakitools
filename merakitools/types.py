@@ -118,6 +118,10 @@ class MRSSIDEncryptionMode(str, Enum):
 
 
 class MRSSIDWPAEncrytionMode(str, Enum):
+    """
+    WPA Encryption modes on an MR SSID
+    """
+
     wpa1_only = "WPA1 only"
     wpa12 = "WPA1 and WPA2"
     wpa2_only = "WPA2 only"

@@ -27,11 +27,11 @@ tracker = "https://github.com/billyzoellers/merakitools/issues"
 [tool.black]
 preview = true
 
+[tool.pylint.format]
+max-line-length = "88"
+
 [tool.bandit]
 skips = ["B101",]
-
-[tool.pylint.messages_control]
-disable = "C0330, C0326"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

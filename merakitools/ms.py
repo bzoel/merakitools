@@ -4,11 +4,12 @@ Billy Zoellers
 
 CLI tools for managing Meraki networks based on Typer
 """
+from typing import List, Optional
 import time
-from meraki import exceptions
 from meraki.exceptions import APIError
 import typer
-from typing import List, Optional
+from rich import inspect
+from rich.progress import Progress, track
 from merakitools.console import console, status_spinner
 from merakitools.dashboardapi import dashboard
 from merakitools.meraki_helpers import (
@@ -22,8 +23,6 @@ from merakitools.types import (
     TrafficDirection,
     MSSTPGuardType,
 )
-from rich import inspect
-from rich.progress import Progress, track
 
 app = typer.Typer()
 
@@ -86,10 +85,10 @@ def update_switchport(
             "rtspEnabled": rtsp_enabled,
             "stpGuard": stp_guard.value if stp_guard is not None else stp_guard,
         }
-        for k, v in items.items():
-            if v is not None:
-                if v is not port[k]:
-                    update[k] = v
+        for key, value in items.items():
+            if value is not None:
+                if value is not port[key]:
+                    update[key] = value
 
         # Update tags
         if add_tag or remove_tag:

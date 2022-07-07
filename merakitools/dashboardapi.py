@@ -4,10 +4,10 @@ Billy Zoellers
 
 CLI tools for managing Meraki networks based on Typer
 """
-from merakitools.__init__ import __version__
-from merakitools.console import console
 import meraki
 from meraki.exceptions import APIError
+from merakitools.__init__ import __version__
+from merakitools.console import console
 
 try:
     dashboard = meraki.DashboardAPI(

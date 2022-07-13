@@ -21,11 +21,17 @@ app = typer.Typer()
 
 @app.command()
 def list(
-    organization_name: str,
-    network_name: str,
-    type: Optional[DeviceModel] = None,
-    sort_by: Optional[DeviceSortOptions] = DeviceSortOptions.model,
-    sort_reverse: bool = False,
+    organization_name: str = typer.Argument(..., help="Organization name"),
+    network_name: str = typer.Argument(..., help="Network name"),
+    type: Optional[DeviceModel] = typer.Option(
+        None, help="Filter for specific device type", rich_help_panel="Sort/Filter"
+    ),
+    sort_by: Optional[DeviceSortOptions] = typer.Option(
+        DeviceSortOptions.model, help="Item to sort on", rich_help_panel="Sort/Filter"
+    ),
+    sort_reverse: bool = typer.Option(
+        False, help="Sort in reverse alphabetical order", rich_help_panel="Sort/Filter"
+    ),
 ):
     """
     List Meraki devices

@@ -13,7 +13,7 @@ MIN_PYTHON = (3, 9)
 if sys.version_info < MIN_PYTHON:
     sys.exit(f"Python {MIN_PYTHON[0]}.{MIN_PYTHON[1]} or later is required")
 
-app = typer.Typer()
+app = typer.Typer(rich_markup_mode="rich")
 app.add_typer(orgs.app, name="orgs", help="Meraki organizations")
 app.add_typer(networks.app, name="networks", help="Meraki networks")
 app.add_typer(devices.app, name="devices", help="Meraki devices")

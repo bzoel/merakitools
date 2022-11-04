@@ -87,7 +87,9 @@ def table_network_health(health, title=None, include_network_name=False):
         row_items = (
             alert["type"],
             alert["category"],
-            f"[{severity_styles.get(alert['severity'], '')}]{alert['severity'].capitalize()}",
+            (
+                f"[{severity_styles.get(alert['severity'], '')}]{alert['severity'].capitalize()}"
+            ),
             "",
         )
         if include_network_name:

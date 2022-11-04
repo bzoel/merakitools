@@ -12,7 +12,6 @@ from merakitools.meraki_helpers import (
     find_network_by_name,
     find_org_by_name,
     find_orgs_by_name,
-    api_req,
 )
 from merakitools.formatting_helpers import table_with_columns, table_network_health
 

@@ -11,12 +11,12 @@ merakitools = "merakitools.main:app"
 [tool.poetry.dependencies]
 python = "^3.9"
 typer = {extras = ["all"], version = "^0.6.1"}
-meraki = "^1.22.1"
+meraki = "^1.27.0"
 
-[tool.poetry.dev-dependencies]
-pytest = "^5.2"
+[tool.poetry.group.dev.dependencies]
+pylint = "^2.15.5"
+pytest = "^7.2.0"
 black = "^22.6.0"
-pylint = "^2.14.4"
 bandit = {extras = ["toml"], version = "^1.7.4"}
 
 [tool.poetry.urls]

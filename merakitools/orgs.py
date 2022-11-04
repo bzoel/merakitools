@@ -372,29 +372,23 @@ def create_ip_objects(
             obj_cidr = obj
             obj_name = obj.replace(".", "-")
 
-        new_obj = api_req(
-            f"organizations/{org['id']}/policyObjects",
-            method="POST",
-            json={
-                "name": obj_name,
-                "category": "network",
-                "type": "cidr",
-                "cidr": obj_cidr,
-            },
+        new_obj = dashboard.organizations.createOrganizationPolicyObject(
+            organizationId=org["id"],
+            name=obj_name,
+            category="network",
+            type="cidr",
+            cidr=obj_cidr,
         )
         new_objects.append(new_obj["id"])
         console.print(f"Created object named {obj_name} with IP {obj_cidr}")
 
     # Create a group with the new objects included
     if group_name:
-        api_req(
-            f"organizations/{org['id']}/policyObjects/groups",
-            method="POST",
-            json={
-                "name": group_name,
-                "category": "NetworkObjectGroup",
-                "objectIds": new_objects,
-            },
+        dashboard.organizations.createOrganizationPolicyObjectsGroup(
+            organizationId=org["id"],
+            name=group_name,
+            category="NetworkObjectGroup",
+            objectIds=new_objects,
         )
         console.print(f"Created group named {group_name}")
 

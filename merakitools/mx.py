@@ -125,6 +125,61 @@ def list_routes(
 
 
 @app.command()
+def delete_route(
+    organization_name: str,
+    network_name: str,
+    subnet: List[str] = None,
+    confirm: bool = True,
+):
+    """
+    Delete route(s) from an MX device
+    """
+    if not subnet:
+        console.print("No routes provided.")
+        raise typer.Abort()
+
+    # Find the network
+    net = find_network_by_name(organization_name, network_name)
+
+    # Find existing routes
+    with status_spinner("Getting routes"):
+        existing_routes = dashboard.appliance.getNetworkApplianceStaticRoutes(
+            networkId=net["id"]
+        )
+
+    # Iterate through each provided subnet and remove route
+    for delete_net in subnet:
+        # Try to find a matching route
+        try:
+            found = next(
+                route for route in existing_routes if route["subnet"] == delete_net
+            )
+        except StopIteration:
+            console.print(f" [red bold]Route matching '{delete_net}' not found.")
+            continue
+
+        found_text = (
+            f"[bold]{found['name']}[/bold] Network: {found['subnet']}, Gateway:"
+            f" {found['gatewayIp']}"
+        )
+
+        # Confirm before deleting
+        if confirm:
+            request_confirm = Confirm.ask(
+                f" Are you sure you want to delete '{found_text}'?", console=console
+            )
+            if not request_confirm:
+                console.print(f" [yellow]Route '{found_text}' was not deleted.")
+                continue
+
+        # Delete the route
+        dashboard.appliance.deleteNetworkApplianceStaticRoute(
+            networkId=net["id"], staticRouteId=found["id"]
+        )
+        console.print(f" [green]Deleted route {found_text}")
+
+
+@app.command()
 def add_staticroute(
     organization_name: str,
     network_name: str,

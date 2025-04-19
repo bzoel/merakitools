@@ -4,6 +4,7 @@ Billy Zoellers
 
 CLI tools for managing Meraki networks based on Typer
 """
+
 from typing import List, Optional
 import typer
 from merakitools.console import console, status_spinner
@@ -123,12 +124,16 @@ def mx_uplinks(
             f"{network_map[uplink['networkId']]} / {device_map[uplink['serial']]}",
             uplink["uplink"],
             uplink["ip"],
-            f"{uplink['timeSeries'][-1]['lossPercent']}%"
-            if uplink["timeSeries"][-1]["lossPercent"] is not None
-            else "",
-            f"{uplink['timeSeries'][-1]['latencyMs']}ms"
-            if uplink["timeSeries"][-1]["latencyMs"] is not None
-            else "",
+            (
+                f"{uplink['timeSeries'][-1]['lossPercent']}%"
+                if uplink["timeSeries"][-1]["lossPercent"] is not None
+                else ""
+            ),
+            (
+                f"{uplink['timeSeries'][-1]['latencyMs']}ms"
+                if uplink["timeSeries"][-1]["latencyMs"] is not None
+                else ""
+            ),
             f"{uplink['timeSeries'][-1]['ts']}",
         )
 

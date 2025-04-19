@@ -4,6 +4,7 @@ Billy Zoellers
 
 CLI tools for managing Meraki networks based on Typer
 """
+
 from typing import List, Optional
 import time
 from meraki.exceptions import APIError

@@ -4,6 +4,7 @@ Billy Zoellers
 
 CLI tools for managing Meraki networks based on Typer
 """
+
 from typing import List, Optional
 import ipaddress
 import typer
@@ -15,7 +16,6 @@ from merakitools.meraki_helpers import (
 )
 from merakitools.formatting_helpers import table_with_columns, table_mx_onetoone_nat
 from merakitools.types import MXInternetUplinks
-
 
 app = typer.Typer()
 

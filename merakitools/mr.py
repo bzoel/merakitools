@@ -4,6 +4,7 @@ Billy Zoellers
 
 CLI tools for managing Meraki networks based on Typer
 """
+
 from typing import Optional
 from meraki.exceptions import APIError
 from rich.prompt import Confirm
@@ -70,9 +71,11 @@ def list_ssid(
             str(ssid.get("defaultVlanId")) if ssid.get("useVlanTagging") else "none",
             ssid["bandSelection"],
             "[green]Visible" if ssid["visible"] else "[red]Not visible",
-            "All APs"
-            if ssid["availableOnAllAps"]
-            else f"Tags: {', '.join(ssid['availabilityTags'])}",
+            (
+                "All APs"
+                if ssid["availableOnAllAps"]
+                else f"Tags: {', '.join(ssid['availabilityTags'])}"
+            ),
         )
     console.print(table)
 
@@ -123,10 +126,10 @@ def list_rf(organization_name: str, network_name: str):
             rf_profile_id = device_rf.get("rfProfileId")
             if rf_profile_id:
                 if rf_profile_id not in rf_profiles:
-                    rf_profiles[
-                        rf_profile_id
-                    ] = dashboard.wireless.getNetworkWirelessRfProfile(
-                        net["id"], rf_profile_id
+                    rf_profiles[rf_profile_id] = (
+                        dashboard.wireless.getNetworkWirelessRfProfile(
+                            net["id"], rf_profile_id
+                        )
                     )
 
             # Get first SSID on each band for actual status info
@@ -179,13 +182,17 @@ def list_rf(organization_name: str, network_name: str):
                 device["name"],
                 rf_profiles[rf_profile_id]["name"] if rf_profile_id else "None",
                 " / ".join(twoFourGhzSettings),
-                f"ch {twoFour_status['channel']} / {twoFour_status['power']}"
-                if twoFour_status
-                else "Not broadcasting",
+                (
+                    f"ch {twoFour_status['channel']} / {twoFour_status['power']}"
+                    if twoFour_status
+                    else "Not broadcasting"
+                ),
                 " / ".join(fiveGhzSettings),
-                f"ch {five_status['channel']} / {five_status['power']}"
-                if five_status
-                else "Not broadcasting",
+                (
+                    f"ch {five_status['channel']} / {five_status['power']}"
+                    if five_status
+                    else "Not broadcasting"
+                ),
             )
     console.print(table)
 
@@ -236,26 +243,36 @@ def list_rf_profiles(organization_name: str, network_name: str):
 
             table.add_row(
                 profile["name"],
-                "[green]Enabled"
-                if profile["clientBalancingEnabled"]
-                else "[red]Disabled",
-                f"{profile['apBandSettings']['bandOperationMode']} /"
-                f" {'[green]Band Steering Enabled' if profile['apBandSettings']['bandSteeringEnabled'] else '[red]Band Steering Disabled'}"
-                if profile["bandSelectionType"] == "ap"
-                else "per SSID",
+                (
+                    "[green]Enabled"
+                    if profile["clientBalancingEnabled"]
+                    else "[red]Disabled"
+                ),
+                (
+                    f"{profile['apBandSettings']['bandOperationMode']} /"
+                    f" {'[green]Band Steering Enabled' if profile['apBandSettings']['bandSteeringEnabled'] else '[red]Band Steering Disabled'}"
+                    if profile["bandSelectionType"] == "ap"
+                    else "per SSID"
+                ),
                 f"{profile['twoFourGhzSettings']['minPower']}-{profile['twoFourGhzSettings']['maxPower']}dBm",
-                f"{profile['twoFourGhzSettings']['minBitrate']}Mbps"
-                if profile["minBitrateType"] == "band"
-                else "per SSID",
+                (
+                    f"{profile['twoFourGhzSettings']['minBitrate']}Mbps"
+                    if profile["minBitrateType"] == "band"
+                    else "per SSID"
+                ),
                 ", ".join(twoFourGhzChannels),
                 f"{profile['fiveGhzSettings']['minPower']}-{profile['fiveGhzSettings']['maxPower']}dBm",
-                f"{profile['fiveGhzSettings']['minBitrate']}Mbps"
-                if profile["minBitrateType"] == "band"
-                else "per SSID",
+                (
+                    f"{profile['fiveGhzSettings']['minBitrate']}Mbps"
+                    if profile["minBitrateType"] == "band"
+                    else "per SSID"
+                ),
                 ", ".join(fiveGhzChannels),
-                profile["fiveGhzSettings"]["channelWidth"]
-                if profile["fiveGhzSettings"]["channelWidth"] == "auto"
-                else f"{profile['fiveGhzSettings']['channelWidth']}MHz",
+                (
+                    profile["fiveGhzSettings"]["channelWidth"]
+                    if profile["fiveGhzSettings"]["channelWidth"] == "auto"
+                    else f"{profile['fiveGhzSettings']['channelWidth']}MHz"
+                ),
                 end_section=True,
             )
         console.print(table)
@@ -404,17 +421,17 @@ def update_ssid(
         "useVlanTagging": tag_vlan,
         "defaultVlanId": default_vlan_id,
         "authMode": auth_mode.value if auth_mode is not None else None,
-        "encryptionMode": encryption_mode.value
-        if encryption_mode is not None
-        else None,
-        "wpaEncryptionMode": wpa_encryption_mode.value
-        if wpa_encryption_mode is not None
-        else None,
+        "encryptionMode": (
+            encryption_mode.value if encryption_mode is not None else None
+        ),
+        "wpaEncryptionMode": (
+            wpa_encryption_mode.value if wpa_encryption_mode is not None else None
+        ),
         "minBitrate": min_bitrate,
         "psk": pre_shared_key,
-        "ipAssignmentMode": ip_assignment_mode.value
-        if ip_assignment_mode is not None
-        else None,
+        "ipAssignmentMode": (
+            ip_assignment_mode.value if ip_assignment_mode is not None else None
+        ),
     }
     for key, value in items.items():
         if value is not None:

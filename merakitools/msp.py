@@ -12,7 +12,6 @@ from rich.progress import track
 from merakitools.console import console, status_spinner
 from merakitools.dashboardapi import dashboard, APIError
 
-
 app = typer.Typer()
 
 

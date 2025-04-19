@@ -4,6 +4,7 @@ Billy Zoellers
 
 CLI tools for managing Meraki networks based on Typer
 """
+
 import re
 from typing import List, Optional
 from rich.table import Table, Column

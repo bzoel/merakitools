@@ -4,6 +4,7 @@ Billy Zoellers
 
 CLI tools for managing Meraki networks based on Typer
 """
+
 from typing import Optional
 from rich.prompt import Confirm
 import typer
@@ -211,9 +212,11 @@ def list_firmware_upgrades(
             f" -> [bold]{fw_info['lastUpgrade']['toVersion'].get('shortName', None)}[/bold]",
             fw_info["lastUpgrade"]["time"],
             ", ".join(available_versions),
-            f"{fw_info['nextUpgrade']['toVersion']['shortName']} ({fw_info['nextUpgrade']['toVersion']['releaseType']})"
-            if fw_info["nextUpgrade"]["time"]
-            else "",
+            (
+                f"{fw_info['nextUpgrade']['toVersion']['shortName']} ({fw_info['nextUpgrade']['toVersion']['releaseType']})"
+                if fw_info["nextUpgrade"]["time"]
+                else ""
+            ),
             fw_info["nextUpgrade"]["time"] if fw_info["nextUpgrade"]["time"] else "",
         )
 
